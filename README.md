@@ -105,7 +105,7 @@ Bu proje Riot Games ile bağlantılı değildir ve onaylanmamıştır. League of
 
 ## 📧 İletişim
 
-Proje Sahibi - [@kullaniciadin](https://github.com/kullaniciadin)
+Proje Sahibi - [@aliskerembaran](https://github.com/kullaniciadin)
 
 Proje Linki: [https://github.com/kullaniciadin/lol-skill-coach](https://github.com/kullaniciadin/lol-skill-coach)
 
