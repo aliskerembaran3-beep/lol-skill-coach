@@ -105,7 +105,7 @@ Bu proje Riot Games ile bağlantılı değildir ve onaylanmamıştır. League of
 
 ## 📧 İletişim
 
-Proje Sahibi - [@aliskerembaran](https://github.com/aliskerembaran3-beep)
+Proje Sahibi - [@aliskerembaran3-beep](https://github.com/aliskerembaran3-beep)
 
 Proje Linki: [https://github.com/aliskerembaran3-beep/lol-skill-coach](https://github.com/aliskerembaran3-beep/lol-skill-coach)
 
