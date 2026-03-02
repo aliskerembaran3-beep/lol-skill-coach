@@ -117,21 +117,7 @@ Proje Linki: [https://github.com/aliskerembaran3-beep/lol-skill-coach](https://g
 ---
 
 ⭐ **Projeyi beğendiyseniz yıldız vermeyi unutmayın!** ⭐
-```
 
-4. **"Commit changes" yeşil butona bas**
-5. **✅ README güzel görünüyor!**
-
----
-
-### 🎨 ADIM 6: EKSTRA DOSYALAR (OPSIYONEL)
-
-#### **LICENSE Dosyası Ekle**
-
-1. **"Add file" → "Create new file"**
-2. **Dosya adı:** `LICENSE`
-3. **İçeriğe şunu yapıştır:**
-```
 MIT License
 
 Copyright (c) 2025 [aliskerembaran3-beep]
@@ -155,32 +141,15 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-4. **"Commit new file"**
 
----
-
-## 🎉 TAMAMLANDI!
-
-Artık projen GitHub'da ve canlı sitende! İşte erişim linklerin:
 ```
 GitHub Repo: https://github.com/aliskerembaran3-beep/lol-skill-coach
 Canlı Site:  https://aliskerembaran3-beep.github.io/lol-skill-coach/
 ```
 
----
 
-## 📣 PAYLAŞIM ÖNERİLERİ
 
-### Reddit'te Paylaş:
-- **r/leagueoflegends** - Büyük topluluk
-- **r/summonerschool** - Gelişim odaklı
-- **Başlık örneği:** "I made a free AI-powered LoL skill improvement tool [OC]"
 
-### Discord'ta Paylaş:
-- LoL Türkiye sunucuları
-- Coaching sunucuları
-
-### Twitter'da Paylaş:
 ```
 🎮 LoL Skill Coach v2.0 yayında!
 
