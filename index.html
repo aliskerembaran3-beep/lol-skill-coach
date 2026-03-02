@@ -3,19 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="League of Legends için AI destekli ultra gelişmiş skill platformu">
-    <title>LoL Skill Coach v3.0 ULTRA</title>
+    <meta name="description" content="League of Legends Ultimate++ AI Coach - Next Generation Platform">
+    <meta name="theme-color" content="#C89B3C">
+    <title>LoL Ultimate++ Coach v5.0</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="data:application/json,{&quot;name&quot;:&quot;LoL Ultimate Coach&quot;,&quot;short_name&quot;:&quot;LoL++&quot;,&quot;start_url&quot;:&quot;.&quot;,&quot;display&quot;:&quot;standalone&quot;,&quot;background_color&quot;:&quot;#000000&quot;,&quot;theme_color&quot;:&quot;#C89B3C&quot;,&quot;icons&quot;:[{&quot;src&quot;:&quot;data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>&quot;,&quot;sizes&quot;:&quot;192x192&quot;,&quot;type&quot;:&quot;image/svg+xml&quot;}]}">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;600;700;800;900&family=Orbitron:wght@700;900&family=Audiowide&display=swap" rel="stylesheet">
+    
+    <!-- Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         :root {
             --lol-gold: #C89B3C;
             --lol-blue: #0AC8B9;
@@ -24,6 +30,17 @@
             --lol-accent: #785A28;
             --lol-red: #E8384F;
             --lol-green: #00FF7F;
+            --lol-purple: #936DFF;
+            --lol-neon: #FF00FF;
+            --lol-cyan: #00FFFF;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --glow: 0 0 20px var(--lol-gold);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
@@ -31,581 +48,623 @@
             background: var(--lol-darker);
             color: #fff;
             min-height: 100vh;
-            position: relative;
             overflow-x: hidden;
+            position: relative;
         }
 
-        body::before {
-            content: '';
+        body.theme-light {
+            --lol-darker: #FFFFFF;
+            --lol-dark: #F5F5F5;
+            color: #1a1a1a;
+        }
+
+        body.theme-neon {
+            --lol-gold: #FF00FF;
+            --lol-blue: #00FFFF;
+            --lol-accent: #FF00AA;
+            --lol-green: #39FF14;
+        }
+
+        body.theme-cyber {
+            --lol-gold: #00FF41;
+            --lol-blue: #00D4FF;
+            --lol-accent: #FF006E;
+            font-family: 'Audiowide', cursive;
+        }
+
+        /* Animated Background */
+        #particles-js {
             position: fixed;
-            top: 0;
-            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .cyber-grid {
+            position: fixed;
             width: 100%;
             height: 100%;
             background: 
-                radial-gradient(ellipse at 50% 0%, rgba(200, 155, 60, 0.15) 0%, transparent 60%),
-                radial-gradient(ellipse at 0% 100%, rgba(11, 198, 180, 0.1) 0%, transparent 50%);
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .hex-pattern {
-            position: fixed;
-            width: 100%;
-            height: 100%;
-            opacity: 0.02;
-            background-image: 
-                repeating-linear-gradient(0deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px),
-                repeating-linear-gradient(60deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px);
+                linear-gradient(90deg, rgba(200, 155, 60, 0.03) 1px, transparent 1px),
+                linear-gradient(rgba(200, 155, 60, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
             z-index: 1;
             pointer-events: none;
+            animation: gridScroll 20s linear infinite;
+        }
+
+        @keyframes gridScroll {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .aurora-bg {
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(ellipse at 20% 30%, rgba(200, 155, 60, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 70%, rgba(11, 198, 180, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(147, 109, 255, 0.1) 0%, transparent 50%);
+            animation: auroraMove 30s ease-in-out infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes auroraMove {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(5%, 10%) rotate(5deg); }
+            66% { transform: translate(-5%, -5%) rotate(-5deg); }
         }
 
         .container {
-            max-width: 1600px;
+            max-width: 1900px;
             margin: 0 auto;
             padding: 40px 20px;
             position: relative;
             z-index: 2;
         }
 
-        .top-bar {
+        /* Top Navigation */
+        .mega-nav {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             background: rgba(1, 10, 19, 0.98);
-            backdrop-filter: blur(10px);
-            border-bottom: 2px solid var(--lol-gold);
-            padding: 15px 20px;
+            backdrop-filter: blur(25px);
+            border-bottom: 3px solid var(--lol-gold);
+            padding: 15px 30px;
             z-index: 1000;
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            gap: 20px;
+            box-shadow: 0 5px 40px rgba(0, 0, 0, 0.8);
         }
 
-        .logo {
-            font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
+        .logo-mega {
+            font-family: 'Orbitron', serif;
+            font-size: 1.8rem;
             color: var(--lol-gold);
             font-weight: 900;
             display: flex;
             align-items: center;
-            gap: 10px;
-            text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
+            gap: 12px;
+            text-shadow: var(--glow);
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
         }
 
-        .profile-avatar {
-            width: 40px;
-            height: 40px;
+        .logo-mega::before {
+            content: '⚔️';
+            font-size: 2rem;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(5deg); }
+        }
+
+        .logo-mega:hover {
+            transform: scale(1.05);
+            text-shadow: 0 0 30px var(--lol-gold);
+        }
+
+        .nav-center {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .xp-system {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+            border-radius: 50px;
+            border: 2px solid var(--lol-gold);
+            position: relative;
+        }
+
+        .level-display {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 1.4rem;
+            font-family: 'Orbitron', serif;
+            border: 3px solid var(--lol-darker);
+            box-shadow: 0 0 25px var(--lol-gold);
+            position: relative;
+        }
+
+        .level-display::after {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
             border-radius: 50%;
             border: 2px solid var(--lol-gold);
+            animation: pulse 2s infinite;
+        }
+
+        .xp-bar-mega {
+            width: 250px;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid var(--lol-gold);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .xp-fill-mega {
+            height: 100%;
+            background: linear-gradient(90deg, var(--lol-gold), var(--lol-blue), var(--lol-purple));
+            background-size: 200% 100%;
+            animation: xpGradient 3s linear infinite;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        @keyframes xpGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        .xp-fill-mega::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .xp-text-mega {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: white;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-mega {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px 20px 8px 8px;
+            border-radius: 50px;
+            border: 2px solid var(--lol-gold);
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
+        }
+
+        .profile-mega:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(200, 155, 60, 0.5);
+        }
+
+        .profile-avatar-mega {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: 3px solid var(--lol-gold);
             background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.2rem;
+            font-size: 1.8rem;
+            box-shadow: 0 0 20px var(--lol-gold);
+            position: relative;
         }
 
-        .profile-avatar:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px rgba(200, 155, 60, 0.6);
+        .profile-avatar-mega::after {
+            content: '✨';
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 1rem;
+            animation: sparkle 1.5s infinite;
         }
 
-        .controls {
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; transform: scale(1) rotate(0deg); }
+            50% { opacity: 0.6; transform: scale(1.3) rotate(180deg); }
+        }
+
+        .profile-info {
+            text-align: left;
+        }
+
+        .profile-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--lol-gold);
+        }
+
+        .profile-stats {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
             display: flex;
-            gap: 15px;
-            align-items: center;
-            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        .lang-toggle {
-            background: rgba(200, 155, 60, 0.1);
-            border: 1px solid var(--lol-gold);
-            border-radius: 8px;
+        .nav-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .theme-picker {
+            display: flex;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 8px;
+            border-radius: 50px;
+            border: 2px solid var(--lol-gold);
+        }
+
+        .theme-orb {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .theme-orb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 25px currentColor;
+        }
+
+        .theme-orb.active {
+            border-color: white;
+            box-shadow: 0 0 30px currentColor;
+        }
+
+        .theme-dark { background: linear-gradient(135deg, #010A13, #000000); }
+        .theme-light { background: linear-gradient(135deg, #FFFFFF, #E0E0E0); }
+        .theme-neon { background: linear-gradient(135deg, #FF00FF, #00FFFF); }
+        .theme-cyber { background: linear-gradient(135deg, #00FF41, #00D4FF); }
+
+        .lang-switch {
+            background: rgba(200, 155, 60, 0.15);
+            border: 2px solid var(--lol-gold);
+            border-radius: 50px;
             padding: 5px;
             display: flex;
             gap: 5px;
         }
 
-        .lang-toggle button {
+        .lang-btn {
             background: none;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 18px;
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            color: rgba(255,255,255,0.6);
-            font-size: 0.85rem;
-            border-radius: 4px;
-        }
-
-        .lang-toggle button.active {
-            background: var(--lol-gold);
-            color: var(--lol-darker);
-        }
-
-        .icon-btn {
-            background: rgba(200, 155, 60, 0.1);
-            border: 1px solid var(--lol-gold);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--lol-gold);
-            font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-        }
-
-        .icon-btn:hover {
-            background: var(--lol-gold);
-            color: var(--lol-darker);
-            transform: translateY(-2px);
-        }
-
-        header {
-            text-align: center;
-            margin-top: 80px;
-            margin-bottom: 40px;
-        }
-
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: clamp(2.5rem, 8vw, 5.5rem);
-            font-weight: 900;
-            color: var(--lol-gold);
-            margin-bottom: 10px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-            text-shadow: 
-                0 0 20px rgba(200, 155, 60, 0.5),
-                0 0 40px rgba(200, 155, 60, 0.3);
-            animation: titleGlow 3s ease-in-out infinite alternate;
-        }
-
-        @keyframes titleGlow {
-            from { text-shadow: 0 0 20px rgba(200, 155, 60, 0.5); }
-            to { text-shadow: 0 0 40px rgba(200, 155, 60, 0.8), 0 0 60px rgba(11, 198, 180, 0.4); }
-        }
-
-        .subtitle {
-            font-size: 1.4rem;
-            color: var(--lol-blue);
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-        }
-
-        .version-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--lol-red), var(--lol-gold));
-            color: white;
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 0.85rem;
             font-weight: 700;
-            margin-top: 10px;
-            animation: pulse 2s ease-in-out infinite;
+            transition: var(--transition);
+            color: rgba(255,255,255,0.6);
+            font-size: 0.9rem;
+            border-radius: 50px;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+        .lang-btn.active {
+            background: var(--lol-gold);
+            color: var(--lol-darker);
+            box-shadow: 0 0 20px var(--lol-gold);
         }
 
-        .tabs {
+        .quick-actions {
             display: flex;
             gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            justify-content: center;
         }
 
-        .tab-btn {
-            background: rgba(200, 155, 60, 0.1);
-            border: 2px solid rgba(200, 155, 60, 0.3);
-            padding: 12px 24px;
+        .action-btn {
+            background: rgba(200, 155, 60, 0.15);
+            border: 2px solid var(--lol-gold);
+            padding: 10px 20px;
             border-radius: 12px;
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.7);
+            color: var(--lol-gold);
             font-family: 'Outfit', sans-serif;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            border-color: var(--lol-gold);
-            color: var(--lol-darker);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(200, 155, 60, 0.4);
-        }
-
-        .tab-btn:hover {
-            border-color: var(--lol-gold);
-            transform: translateY(-2px);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .stats-overview {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .stat-box {
-            background: linear-gradient(135deg, rgba(200, 155, 60, 0.1), rgba(11, 198, 180, 0.05));
-            border: 1px solid var(--lol-gold);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: var(--transition);
+            white-space: nowrap;
             position: relative;
             overflow: hidden;
         }
 
-        .stat-box::before {
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+        }
+
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .action-btn:hover {
+            background: var(--lol-gold);
+            color: var(--lol-darker);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(200, 155, 60, 0.5);
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-top: 110px;
+            margin-bottom: 50px;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Audiowide', cursive;
+            font-size: clamp(3rem, 12vw, 8rem);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-blue), var(--lol-purple), var(--lol-cyan));
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            animation: gradientShift 5s ease infinite, titleFloat 8s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px var(--lol-gold));
+            position: relative;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.02); }
+        }
+
+        .subtitle-mega {
+            font-size: 1.8rem;
+            background: linear-gradient(90deg, var(--lol-blue), var(--lol-purple), var(--lol-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .version-mega {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(135deg, var(--lol-red), var(--lol-gold), var(--lol-purple));
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: 900;
+            animation: versionPulse 2s ease-in-out infinite;
+            box-shadow: 0 8px 30px rgba(232, 56, 79, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes versionPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(232, 56, 79, 0.6); }
+            50% { transform: scale(1.05); box-shadow: 0 12px 40px rgba(232, 56, 79, 0.8); }
+        }
+
+        .version-mega::before {
             content: '';
             position: absolute;
             top: 0;
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(200, 155, 60, 0.2), transparent);
-            transition: left 0.5s ease;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: versionShine 3s infinite;
         }
 
-        .stat-box:hover::before {
-            left: 100%;
+        @keyframes versionShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
-        .stat-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(200, 155, 60, 0.3);
-        }
-
-        .stat-number {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            color: var(--lol-gold);
-            font-weight: 900;
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            margin-top: 5px;
-        }
-
-        .profile-section {
-            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95) 0%, rgba(1, 10, 19, 0.8) 100%);
-            border: 2px solid var(--lol-gold);
-            border-radius: 16px;
-            padding: 40px;
+        /* Daily Quest Banner */
+        .daily-quest-banner {
+            background: linear-gradient(135deg, rgba(147, 109, 255, 0.2), rgba(232, 56, 79, 0.2));
+            border: 3px solid var(--lol-purple);
+            border-radius: 20px;
+            padding: 25px;
             margin-bottom: 40px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .section-title {
-            font-family: 'Cinzel', serif;
-            font-size: 1.8rem;
-            color: var(--lol-gold);
-            margin-bottom: 25px;
-            text-transform: uppercase;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .input-field label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--lol-gold);
-            margin-bottom: 10px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 600;
-        }
-
-        .input-field input,
-        .input-field select {
-            width: 100%;
-            padding: 14px 18px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(200, 155, 60, 0.3);
-            border-radius: 8px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .input-field input:focus,
-        .input-field select:focus {
-            outline: none;
-            border-color: var(--lol-blue);
-            box-shadow: 0 0 20px rgba(11, 198, 180, 0.2);
-        }
-
-        .champion-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-        }
-
-        .champion-card {
-            background: linear-gradient(135deg, rgba(200, 155, 60, 0.2), rgba(11, 198, 180, 0.1));
-            border: 2px solid transparent;
-            border-radius: 12px;
-            padding: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .champion-card:hover {
-            border-color: var(--lol-gold);
-            transform: translateY(-5px);
-            box-shadow: 0 5px 20px rgba(200, 155, 60, 0.4);
-        }
-
-        .champion-card.selected {
-            border-color: var(--lol-blue);
-            background: linear-gradient(135deg, rgba(11, 198, 180, 0.3), rgba(200, 155, 60, 0.2));
-        }
-
-        .champion-icon {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 8px;
-            font-size: 1.5rem;
-        }
-
-        .champion-name {
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .chart-container {
-            background: rgba(1, 10, 19, 0.8);
-            border: 2px solid var(--lol-gold);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 30px;
-        }
-
-        .chart-wrapper {
-            position: relative;
-            height: 300px;
-        }
-
-        .file-upload {
-            border: 2px dashed var(--lol-gold);
-            border-radius: 12px;
-            padding: 40px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            background: rgba(200, 155, 60, 0.05);
-        }
-
-        .file-upload:hover {
-            border-color: var(--lol-blue);
-            background: rgba(11, 198, 180, 0.1);
-        }
-
-        .file-upload input {
-            display: none;
-        }
-
-        .matchup-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .matchup-card {
-            background: linear-gradient(135deg, rgba(1, 10, 19, 0.9), rgba(1, 10, 19, 0.7));
-            border: 2px solid var(--lol-gold);
-            border-radius: 12px;
-            padding: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .matchup-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(200, 155, 60, 0.3);
-        }
-
-        .matchup-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .difficulty-easy { color: var(--lol-green); }
-        .difficulty-medium { color: var(--lol-gold); }
-        .difficulty-hard { color: var(--lol-red); }
-
-        .rune-selector {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 15px;
-        }
-
-        .rune-card {
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid rgba(200, 155, 60, 0.3);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .rune-card:hover {
-            border-color: var(--lol-gold);
-            transform: scale(1.05);
-        }
-
-        .rune-card.selected {
-            border-color: var(--lol-blue);
-            background: rgba(11, 198, 180, 0.2);
-        }
-
-        .achievement-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
-        }
-
-        .achievement-card {
-            background: linear-gradient(135deg, rgba(200, 155, 60, 0.1), rgba(1, 10, 19, 0.9));
-            border: 2px solid rgba(200, 155, 60, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-
-        .achievement-card.unlocked {
-            border-color: var(--lol-gold);
-            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
-        }
-
-        .achievement-icon {
-            font-size: 3rem;
-            margin-bottom: 10px;
-            filter: grayscale(100%);
-            transition: all 0.3s ease;
-        }
-
-        .achievement-card.unlocked .achievement-icon {
-            filter: grayscale(0%);
-            animation: bounce 0.5s ease-out;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        .leaderboard-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .leaderboard-table th,
-        .leaderboard-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
-        }
-
-        .leaderboard-table th {
-            background: rgba(200, 155, 60, 0.2);
-            color: var(--lol-gold);
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
-        .leaderboard-table tr:hover {
-            background: rgba(200, 155, 60, 0.1);
-        }
-
-        .rank-badge {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            color: var(--lol-darker);
-            font-weight: 900;
-            text-align: center;
-            line-height: 30px;
-        }
-
-        .share-card {
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-blue));
-            border-radius: 16px;
-            padding: 40px;
-            color: var(--lol-darker);
-            text-align: center;
             position: relative;
             overflow: hidden;
         }
 
-        .share-card::before {
+        .daily-quest-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: questShine 4s infinite;
+        }
+
+        @keyframes questShine {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .quest-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .quest-icon {
+            font-size: 3rem;
+            animation: bounce 2s infinite;
+        }
+
+        .quest-details h3 {
+            font-family: 'Cinzel', serif;
+            font-size: 1.5rem;
+            color: var(--lol-purple);
+            margin-bottom: 5px;
+        }
+
+        .quest-progress {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .progress-bar-quest {
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid var(--lol-purple);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill-quest {
+            height: 100%;
+            background: linear-gradient(90deg, var(--lol-purple), var(--lol-blue));
+            transition: width 1s ease;
+        }
+
+        .quest-reward {
+            background: rgba(200, 155, 60, 0.2);
+            border: 2px solid var(--lol-gold);
+            padding: 15px 25px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .quest-reward-text {
+            font-size: 0.85rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .quest-reward-amount {
+            font-family: 'Orbitron', serif;
+            font-size: 1.8rem;
+            color: var(--lol-gold);
+            font-weight: 900;
+        }
+
+        /* Mega Stats Grid */
+        .stats-ultra-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card-ultra {
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.15), rgba(11, 198, 180, 0.1));
+            border: 3px solid transparent;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card-ultra::before {
             content: '';
             position: absolute;
             top: -50%;
-            right: -50%;
+            left: -50%;
             width: 200%;
             height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
+            background: radial-gradient(circle, rgba(200, 155, 60, 0.3) 0%, transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .stat-card-ultra:hover::before {
+            opacity: 1;
+            animation: rotate 4s linear infinite;
         }
 
         @keyframes rotate {
@@ -613,432 +672,838 @@
             to { transform: rotate(360deg); }
         }
 
-        .coach-btn {
-            width: 100%;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--lol-gold) 0%, var(--lol-accent) 100%);
-            border: none;
-            border-radius: 12px;
-            color: var(--lol-darker);
-            font-family: 'Cinzel', serif;
-            font-size: 1.3rem;
-            font-weight: 700;
+        .stat-card-ultra:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 20px 50px rgba(200, 155, 60, 0.5);
+            border-color: var(--lol-gold);
+        }
+
+        .stat-icon-ultra {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 15px var(--lol-gold));
+            animation: iconFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        .stat-number-ultra {
+            font-family: 'Orbitron', serif;
+            font-size: 2.5rem;
+            color: var(--lol-gold);
+            font-weight: 900;
+            text-shadow: 0 0 20px var(--lol-gold);
+            margin-bottom: 8px;
+        }
+
+        .stat-label-ultra {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.85);
             text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 8px 30px rgba(200, 155, 60, 0.4);
+            letter-spacing: 0.15em;
+            font-weight: 700;
         }
 
-        .coach-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 40px rgba(200, 155, 60, 0.6);
+        /* Notification System */
+        .notification-system {
+            position: fixed;
+            top: 100px;
+            right: 30px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .results {
-            margin-top: 40px;
-        }
-
-        .advice-card {
-            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95) 0%, rgba(1, 10, 19, 0.85) 100%);
-            border: 2px solid var(--lol-blue);
+        .notification {
+            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95), rgba(1, 10, 19, 0.9));
+            border: 3px solid var(--lol-gold);
             border-radius: 16px;
-            padding: 35px;
-            margin-bottom: 25px;
-            box-shadow: 0 10px 40px rgba(11, 198, 180, 0.2);
-            position: relative;
-        }
-
-        .advice-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 4px;
-            height: 100%;
-            background: linear-gradient(180deg, var(--lol-gold), var(--lol-blue));
-        }
-
-        .advice-header {
+            padding: 20px 25px;
+            min-width: 350px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+            animation: notifSlide 0.5s ease-out;
+            position: relative;
+            overflow: hidden;
         }
 
-        .advice-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 8px;
+        @keyframes notifSlide {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 5px;
+            background: var(--lol-gold);
+        }
+
+        .notification.success::before { background: var(--lol-green); }
+        .notification.error::before { background: var(--lol-red); }
+        .notification.info::before { background: var(--lol-blue); }
+
+        .notif-icon {
+            font-size: 2rem;
+            animation: bounce 1s infinite;
+        }
+
+        .notif-content {
+            flex: 1;
+        }
+
+        .notif-title {
+            font-weight: 800;
+            margin-bottom: 5px;
+            color: var(--lol-gold);
+        }
+
+        .notif-message {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* AI Assistant Mega */
+        .ai-assistant-mega {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 999;
+        }
+
+        .ai-orb {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-blue), var(--lol-purple));
+            background-size: 200% 200%;
+            animation: orbGradient 5s ease infinite, orbFloat 3s ease-in-out infinite;
+            border: 4px solid var(--lol-darker);
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            font-size: 2.5rem;
+            box-shadow: 0 10px 40px rgba(200, 155, 60, 0.7);
+            transition: var(--transition);
+            position: relative;
         }
 
-        .advice-header h3 {
+        @keyframes orbGradient {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-12px) scale(1.05); }
+        }
+
+        .ai-orb:hover {
+            transform: scale(1.15);
+            box-shadow: 0 15px 50px rgba(200, 155, 60, 1);
+        }
+
+        .ai-orb::after {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border-radius: 50%;
+            border: 3px solid var(--lol-gold);
+            animation: pulse 2s infinite;
+        }
+
+        .ai-chat-mega {
+            position: absolute;
+            bottom: 100px;
+            right: 0;
+            width: 400px;
+            height: 600px;
+            background: linear-gradient(135deg, rgba(1, 10, 19, 0.98), rgba(1, 10, 19, 0.95));
+            border: 3px solid var(--lol-gold);
+            border-radius: 24px;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(25px);
+        }
+
+        .ai-chat-mega.active {
+            display: flex;
+            animation: chatExpand 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        @keyframes chatExpand {
+            from { opacity: 0; transform: scale(0.8) translateY(50px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .ai-chat-header-mega {
+            padding: 25px;
+            border-bottom: 3px solid var(--lol-gold);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.2), rgba(11, 198, 180, 0.1));
+        }
+
+        .ai-chat-title {
             font-family: 'Cinzel', serif;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             color: var(--lol-gold);
+            font-weight: 900;
+        }
+
+        .ai-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--lol-green);
+            animation: pulse 2s infinite;
+        }
+
+        .ai-messages-mega {
+            flex: 1;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .ai-messages-mega::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .ai-messages-mega::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .ai-messages-mega::-webkit-scrollbar-thumb {
+            background: var(--lol-gold);
+            border-radius: 10px;
+        }
+
+        .message-mega {
+            padding: 15px 20px;
+            border-radius: 18px;
+            max-width: 85%;
+            animation: messageAppear 0.4s ease-out;
+            position: relative;
+        }
+
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-mega.user {
+            background: linear-gradient(135deg, var(--lol-blue), var(--lol-purple));
+            align-self: flex-end;
+            color: white;
+            box-shadow: 0 5px 20px rgba(11, 198, 180, 0.4);
+        }
+
+        .message-mega.bot {
+            background: rgba(200, 155, 60, 0.25);
+            border: 2px solid var(--lol-gold);
+            align-self: flex-start;
+            box-shadow: 0 5px 20px rgba(200, 155, 60, 0.3);
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            opacity: 0.6;
+            margin-top: 8px;
+        }
+
+        .ai-input-mega {
+            padding: 20px;
+            border-top: 3px solid var(--lol-gold);
+            display: flex;
+            gap: 12px;
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.1), rgba(11, 198, 180, 0.05));
+        }
+
+        .ai-input-field {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--lol-gold);
+            border-radius: 15px;
+            color: white;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .ai-input-field:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+            border-color: var(--lol-blue);
+        }
+
+        .ai-send-mega {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            border: none;
+            border-radius: 15px;
+            color: var(--lol-darker);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1.2rem;
+        }
+
+        .ai-send-mega:hover {
+            transform: scale(1.08);
+            box-shadow: 0 8px 25px rgba(200, 155, 60, 0.6);
+        }
+
+        /* Mini Game Section */
+        .minigame-container {
+            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95), rgba(1, 10, 19, 0.9));
+            border: 3px solid var(--lol-gold);
+            border-radius: 24px;
+            padding: 40px;
+            margin-bottom: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .minigame-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(200, 155, 60, 0.1) 0%, transparent 70%);
+            animation: rotate 25s linear infinite;
+            pointer-events: none;
+        }
+
+        .section-title-mega {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            color: var(--lol-gold);
+            margin-bottom: 35px;
             text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: relative;
+            z-index: 1;
         }
 
-        .advice-content {
-            color: rgba(255, 255, 255, 0.9);
-            line-height: 1.9;
-            font-size: 1.05rem;
+        .section-title-mega::before {
+            content: '';
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--lol-gold), transparent);
         }
 
-        .loading {
+        .section-title-mega::after {
+            content: '';
+            flex: 1;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--lol-gold), transparent);
+        }
+
+        .minigame-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .minigame-card {
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.1), rgba(11, 198, 180, 0.05));
+            border: 3px solid rgba(200, 155, 60, 0.3);
+            border-radius: 20px;
+            padding: 30px;
             text-align: center;
-            padding: 60px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .minigame-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .minigame-card:hover::before {
+            left: 100%;
+        }
+
+        .minigame-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--lol-gold);
+            box-shadow: 0 20px 50px rgba(200, 155, 60, 0.4);
+        }
+
+        .minigame-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px var(--lol-gold));
+        }
+
+        .minigame-title {
             font-family: 'Cinzel', serif;
             font-size: 1.4rem;
             color: var(--lol-gold);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .minigame-desc {
+            font-size: 0.95rem;
+            opacity: 0.8;
+            margin-bottom: 20px;
+        }
+
+        .minigame-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            border: none;
+            border-radius: 12px;
+            color: var(--lol-darker);
+            font-weight: 800;
+            cursor: pointer;
+            transition: var(--transition);
             text-transform: uppercase;
+            letter-spacing: 0.1em;
         }
 
-        .loading::after {
-            content: '';
-            display: block;
-            width: 50px;
-            height: 50px;
-            margin: 20px auto;
-            border: 4px solid rgba(200, 155, 60, 0.2);
-            border-top-color: var(--lol-gold);
-            border-radius: 50%;
-            animation: spinner 1s linear infinite;
+        .minigame-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 25px rgba(200, 155, 60, 0.6);
         }
 
-        @keyframes spinner {
-            to { transform: rotate(360deg); }
-        }
-
-        .footer {
+        /* Footer */
+        .footer-mega {
             text-align: center;
-            padding: 40px 20px;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 0.9rem;
-            border-top: 1px solid rgba(200, 155, 60, 0.2);
-            margin-top: 60px;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 1rem;
+            border-top: 3px solid rgba(200, 155, 60, 0.3);
+            margin-top: 100px;
+            position: relative;
         }
 
-        .modal {
-            display: none;
+        .footer-mega::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, var(--lol-gold), transparent);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+
+        .footer-link {
+            color: var(--lol-gold);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 700;
+            position: relative;
+        }
+
+        .footer-link::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--lol-gold);
+            transition: width 0.3s;
+        }
+
+        .footer-link:hover {
+            color: var(--lol-blue);
+        }
+
+        .footer-link:hover::after {
+            width: 100%;
+        }
+
+        /* Responsive */
+        @media (max-width: 1400px) {
+            .mega-nav {
+                grid-template-columns: auto auto;
+                justify-content: space-between;
+            }
+            .nav-center {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .mega-nav {
+                padding: 15px;
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .nav-right {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            header {
+                margin-top: 180px;
+            }
+            h1 {
+                font-size: 3rem;
+            }
+            .ai-chat-mega {
+                width: calc(100vw - 40px);
+                right: 20px;
+            }
+            .notification {
+                min-width: auto;
+                width: calc(100vw - 60px);
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
+            background: var(--lol-darker);
+            z-index: 10000;
+            display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
+            gap: 30px;
         }
 
-        .modal.active {
-            display: flex;
+        .loading-logo {
+            font-size: 8rem;
+            animation: logoSpin 2s linear infinite;
         }
 
-        .modal-content {
-            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95), rgba(1, 10, 19, 0.9));
-            border: 2px solid var(--lol-gold);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 500px;
-            width: 90%;
-            position: relative;
+        @keyframes logoSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        .modal-close {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
+        .loading-bar {
+            width: 300px;
+            height: 8px;
+            background: rgba(200, 155, 60, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .loading-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--lol-gold), var(--lol-blue));
+            width: 0%;
+            animation: loadFill 2s ease-out forwards;
+        }
+
+        @keyframes loadFill {
+            to { width: 100%; }
+        }
+
+        .loading-text {
+            font-family: 'Orbitron', serif;
+            font-size: 1.5rem;
             color: var(--lol-gold);
-            font-size: 2rem;
-            cursor: pointer;
-        }
-
-        @media (max-width: 968px) {
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-            .champion-grid {
-                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px 15px;
-            }
-            header {
-                margin-top: 120px;
-            }
-            .tabs {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
         }
     </style>
 </head>
 <body>
-    <div class="hex-pattern"></div>
-    
-    <div class="top-bar">
-        <div class="logo">
-            <span>⚔️</span>
-            <span>LoL COACH ULTRA</span>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-logo">⚔️</div>
+        <div class="loading-bar">
+            <div class="loading-fill"></div>
         </div>
-        <div class="controls">
-            <div class="profile-avatar" onclick="openProfileModal()">👤</div>
-            <div class="lang-toggle">
-                <button class="active" data-lang="tr">🇹🇷 TR</button>
-                <button data-lang="en">🇬🇧 EN</button>
-            </div>
-            <button class="icon-btn" onclick="shareProgress()">📤</button>
-            <button class="icon-btn" onclick="window.print()">🖨️</button>
-        </div>
+        <div class="loading-text">LOADING ULTIMATE++</div>
     </div>
 
+    <!-- Particles Background -->
+    <div id="particles-js"></div>
+    <div class="cyber-grid"></div>
+    <div class="aurora-bg"></div>
+
+    <!-- Notification System -->
+    <div class="notification-system" id="notificationSystem"></div>
+
+    <!-- Navigation -->
+    <nav class="mega-nav">
+        <div class="logo-mega" onclick="location.reload()">
+            LoL ULTIMATE++
+        </div>
+        
+        <div class="nav-center">
+            <div class="xp-system">
+                <div class="level-display" id="levelDisplay">1</div>
+                <div class="xp-bar-mega">
+                    <div class="xp-fill-mega" id="xpFill" style="width: 0%"></div>
+                    <div class="xp-text-mega" id="xpText">0 / 1000 XP</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="nav-right">
+            <div class="profile-mega" onclick="openProfile()">
+                <div class="profile-avatar-mega" id="avatarDisplay">👤</div>
+                <div class="profile-info">
+                    <div class="profile-name" id="profileName">Player</div>
+                    <div class="profile-stats">
+                        <span>💰 <span id="coinsDisplay">0</span></span>
+                        <span>🏆 <span id="trophiesDisplay">0</span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="theme-picker">
+                <div class="theme-orb theme-dark active" onclick="setTheme('dark')" title="Dark"></div>
+                <div class="theme-orb theme-light" onclick="setTheme('light')" title="Light"></div>
+                <div class="theme-orb theme-neon" onclick="setTheme('neon')" title="Neon"></div>
+                <div class="theme-orb theme-cyber" onclick="setTheme('cyber')" title="Cyber"></div>
+            </div>
+            
+            <div class="lang-switch">
+                <button class="lang-btn active" data-lang="tr">🇹🇷</button>
+                <button class="lang-btn" data-lang="en">🇬🇧</button>
+            </div>
+
+            <div class="quick-actions">
+                <button class="action-btn" onclick="openShop()">🛒 <span data-tr="Shop" data-en="Shop">Shop</span></button>
+                <button class="action-btn" onclick="shareApp()">📤 <span data-tr="Paylaş" data-en="Share">Paylaş</span></button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
     <div class="container">
         <header>
-            <h1>LEAGUE COACH</h1>
-            <p class="subtitle" data-tr="Ultra AI Platform" data-en="Ultra AI Platform">Ultra AI Platform</p>
-            <span class="version-badge">v3.0 ULTRA 🔥</span>
+            <h1>ULTIMATE++</h1>
+            <p class="subtitle-mega" data-tr="NEXT GENERATION COACH" data-en="NEXT GENERATION COACH">NEXT GENERATION COACH</p>
+            <span class="version-mega">🔥 v5.0 ULTIMATE++ 🚀</span>
         </header>
 
-        <div class="stats-overview">
-            <div class="stat-box">
-                <div class="stat-number" id="totalSessions">0</div>
-                <div class="stat-label" data-tr="Analiz" data-en="Analyses">Analiz</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" id="avgCS">0</div>
-                <div class="stat-label">CS/Min</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" id="currentStreak">0</div>
-                <div class="stat-label" data-tr="Streak" data-en="Streak">Streak</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" id="improvement">0%</div>
-                <div class="stat-label" data-tr="Gelişim" data-en="Growth">Gelişim</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" id="achievements">0/12</div>
-                <div class="stat-label" data-tr="Başarı" data-en="Achievements">Başarı</div>
-            </div>
-        </div>
-
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('profile')">
-                <span data-tr="📊 Profil & Analiz" data-en="📊 Profile & Analysis">📊 Profil & Analiz</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('champions')">
-                <span data-tr="⚔️ Champions" data-en="⚔️ Champions">⚔️ Champions</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('matchups')">
-                <span data-tr="🎯 Matchups" data-en="🎯 Matchups">🎯 Matchups</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('builds')">
-                <span data-tr="📜 Builds" data-en="📜 Builds">📜 Builds</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('replay')">
-                <span data-tr="🎬 Replay" data-en="🎬 Replay">🎬 Replay</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('progress')">
-                <span data-tr="📈 İlerleme" data-en="📈 Progress">📈 İlerleme</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('leaderboard')">
-                <span data-tr="🏆 Liderlik" data-en="🏆 Leaderboard">🏆 Liderlik</span>
-            </button>
-            <button class="tab-btn" onclick="switchTab('achievements')">
-                <span data-tr="🎖️ Başarılar" data-en="🎖️ Achievements">🎖️ Başarılar</span>
-            </button>
-        </div>
-
-        <div id="profileTab" class="tab-content active">
-            <div class="profile-section">
-                <div class="section-title">⚙️ <span data-tr="Oyuncu Profili" data-en="Player Profile">Oyuncu Profili</span></div>
-                <div class="input-grid">
-                    <div class="input-field">
-                        <label data-tr="Sunucu" data-en="Server">Sunucu</label>
-                        <select id="server">
-                            <option value="TR" selected>TR</option>
-                            <option value="EUW">EUW</option>
-                            <option value="NA">NA</option>
-                            <option value="KR">KR</option>
-                        </select>
-                    </div>
-                    <div class="input-field">
-                        <label data-tr="Rank" data-en="Rank">Rank</label>
-                        <select id="rank">
-                            <option value="Iron">Iron</option>
-                            <option value="Bronze">Bronze</option>
-                            <option value="Silver">Silver</option>
-                            <option value="Gold">Gold</option>
-                            <option value="Platinum">Platinum</option>
-                            <option value="Diamond">Diamond</option>
-                        </select>
-                    </div>
-                    <div class="input-field">
-                        <label data-tr="Rol" data-en="Role">Rol</label>
-                        <select id="role">
-                            <option value="Top">Top</option>
-                            <option value="Jungle">Jungle</option>
-                            <option value="Mid">Mid</option>
-                            <option value="ADC">ADC</option>
-                            <option value="Support">Support</option>
-                        </select>
-                    </div>
-                    <div class="input-field">
-                        <label>CS/Min</label>
-                        <input type="number" id="cs" placeholder="6.5" step="0.1">
-                    </div>
-                    <div class="input-field">
-                        <label data-tr="Hedef" data-en="Target">Hedef</label>
-                        <select id="targetRank">
-                            <option value="Gold">Gold</option>
-                            <option value="Platinum">Platinum</option>
-                            <option value="Diamond">Diamond</option>
-                        </select>
+        <!-- Daily Quest Banner -->
+        <div class="daily-quest-banner">
+            <div class="quest-info">
+                <div class="quest-icon">🎯</div>
+                <div class="quest-details">
+                    <h3 data-tr="Günlük Görev: 3 Analiz Yap" data-en="Daily Quest: Complete 3 Analyses">Günlük Görev: 3 Analiz Yap</h3>
+                    <div class="quest-progress">
+                        <div class="progress-bar-quest">
+                            <div class="progress-fill-quest" id="questProgress" style="width: 0%"></div>
+                        </div>
+                        <span id="questText">0/3</span>
                     </div>
                 </div>
-                <button class="coach-btn" id="analyzeBtn">
-                    <span data-tr="⚔️ ULTRA ANALİZ BAŞLAT" data-en="⚔️ START ULTRA ANALYSIS">⚔️ ULTRA ANALİZ BAŞLAT</span>
-                </button>
             </div>
-            <div id="results"></div>
-        </div>
-
-        <div id="championsTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">⚔️ <span data-tr="Champion Seçimi" data-en="Champion Selection">Champion Seçimi</span></div>
-                <div class="champion-grid" id="championGrid"></div>
+            <div class="quest-reward">
+                <div class="quest-reward-text" data-tr="Ödül" data-en="Reward">Ödül</div>
+                <div class="quest-reward-amount">+500 💰</div>
             </div>
         </div>
 
-        <div id="matchupsTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">🎯 <span data-tr="Matchup Database" data-en="Matchup Database">Matchup Database</span></div>
-                <div class="matchup-grid" id="matchupGrid"></div>
+        <!-- Mega Stats -->
+        <div class="stats-ultra-grid">
+            <div class="stat-card-ultra" onclick="showStat('sessions')">
+                <div class="stat-icon-ultra">📊</div>
+                <div class="stat-number-ultra" id="totalSessions">0</div>
+                <div class="stat-label-ultra" data-tr="Analiz" data-en="Analyses">Analiz</div>
+            </div>
+            <div class="stat-card-ultra" onclick="showStat('cs')">
+                <div class="stat-icon-ultra">⚔️</div>
+                <div class="stat-number-ultra" id="avgCS">0</div>
+                <div class="stat-label-ultra">CS/Min</div>
+            </div>
+            <div class="stat-card-ultra" onclick="showStat('streak')">
+                <div class="stat-icon-ultra">🔥</div>
+                <div class="stat-number-ultra" id="currentStreak">0</div>
+                <div class="stat-label-ultra" data-tr="Streak" data-en="Streak">Streak</div>
+            </div>
+            <div class="stat-card-ultra" onclick="showStat('growth')">
+                <div class="stat-icon-ultra">📈</div>
+                <div class="stat-number-ultra" id="improvement">0%</div>
+                <div class="stat-label-ultra" data-tr="Gelişim" data-en="Growth">Gelişim</div>
+            </div>
+            <div class="stat-card-ultra" onclick="showStat('rank')">
+                <div class="stat-icon-ultra">👑</div>
+                <div class="stat-number-ultra" id="globalRank">#999</div>
+                <div class="stat-label-ultra" data-tr="Sıralama" data-en="Rank">Sıralama</div>
+            </div>
+            <div class="stat-card-ultra" onclick="showStat('achievements')">
+                <div class="stat-icon-ultra">🎖️</div>
+                <div class="stat-number-ultra" id="achievements">0/20</div>
+                <div class="stat-label-ultra" data-tr="Başarı" data-en="Badges">Başarı</div>
             </div>
         </div>
 
-        <div id="buildsTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">📜 <span data-tr="Rune & Build Önerileri" data-en="Rune & Build Recommendations">Rune & Build Önerileri</span></div>
-                <div class="rune-selector" id="runeSelector"></div>
-            </div>
-        </div>
-
-        <div id="replayTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">🎬 <span data-tr="Replay Analizi" data-en="Replay Analysis">Replay Analizi</span></div>
-                <div class="file-upload" onclick="document.getElementById('replayFile').click()">
-                    <input type="file" id="replayFile" accept=".rofl">
-                    <p style="font-size: 3rem; margin-bottom: 20px;">📁</p>
-                    <p style="font-size: 1.2rem; color: var(--lol-gold);" data-tr="Replay Dosyası Yükle (.rofl)" data-en="Upload Replay File (.rofl)">Replay Dosyası Yükle (.rofl)</p>
-                    <p style="margin-top: 10px; color: rgba(255,255,255,0.5);" data-tr="AI ile otomatik analiz" data-en="AI automated analysis">AI ile otomatik analiz</p>
+        <!-- Mini Games Section -->
+        <div class="minigame-container">
+            <div class="section-title-mega">🎮 <span data-tr="Mini Oyunlar" data-en="Mini Games">Mini Oyunlar</span></div>
+            <div class="minigame-grid">
+                <div class="minigame-card" onclick="playGame('cs-trainer')">
+                    <div class="minigame-icon">⚔️</div>
+                    <div class="minigame-title">CS Trainer</div>
+                    <div class="minigame-desc" data-tr="Last hit pratiği yap" data-en="Practice last hitting">Last hit pratiği yap</div>
+                    <button class="minigame-btn" data-tr="Oyna" data-en="Play">Oyna</button>
                 </div>
-                <div id="replayResults"></div>
-            </div>
-        </div>
-
-        <div id="progressTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">📈 <span data-tr="Gelişim Grafikleri" data-en="Progress Charts">Gelişim Grafikleri</span></div>
-                <div class="chart-container">
-                    <div class="chart-wrapper">
-                        <canvas id="progressChart"></canvas>
-                    </div>
+                <div class="minigame-card" onclick="playGame('reflex')">
+                    <div class="minigame-icon">⚡</div>
+                    <div class="minigame-title">Reflex Test</div>
+                    <div class="minigame-desc" data-tr="Reflekslerini geliştir" data-en="Improve reflexes">Reflekslerini geliştir</div>
+                    <button class="minigame-btn" data-tr="Oyna" data-en="Play">Oyna</button>
+                </div>
+                <div class="minigame-card" onclick="playGame('map-awareness')">
+                    <div class="minigame-icon">🗺️</div>
+                    <div class="minigame-title">Map Awareness</div>
+                    <div class="minigame-desc" data-tr="Mini-map okuma çalış" data-en="Practice map reading">Mini-map okuma çalış</div>
+                    <button class="minigame-btn" data-tr="Oyna" data-en="Play">Oyna</button>
+                </div>
+                <div class="minigame-card" onclick="playGame('skillshot')">
+                    <div class="minigame-icon">🎯</div>
+                    <div class="minigame-title">Skillshot Trainer</div>
+                    <div class="minigame-desc" data-tr="İsabetini artır" data-en="Increase accuracy">İsabetini artır</div>
+                    <button class="minigame-btn" data-tr="Oyna" data-en="Play">Oyna</button>
                 </div>
             </div>
         </div>
 
-        <div id="leaderboardTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">🏆 <span data-tr="Global Liderlik Tablosu" data-en="Global Leaderboard">Global Liderlik Tablosu</span></div>
-                <table class="leaderboard-table">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th data-tr="Oyuncu" data-en="Player">Oyuncu</th>
-                            <th>Rank</th>
-                            <th>CS/Min</th>
-                            <th data-tr="Analiz" data-en="Sessions">Analiz</th>
-                        </tr>
-                    </thead>
-                    <tbody id="leaderboardBody"></tbody>
-                </table>
-            </div>
+        <!-- Main Content Area -->
+        <div id="mainContent">
+            <!-- Content will be dynamically loaded here -->
         </div>
 
-        <div id="achievementsTab" class="tab-content">
-            <div class="profile-section">
-                <div class="section-title">🎖️ <span data-tr="Başarılar" data-en="Achievements">Başarılar</span></div>
-                <div class="achievement-grid" id="achievementGrid"></div>
+        <!-- Footer -->
+        <div class="footer-mega">
+            <p style="font-size: 1.2rem; font-weight: 800; margin-bottom: 15px;">
+                ⚔️ <strong>LoL Ultimate++ Coach v5.0</strong> ⚔️
+            </p>
+            <p data-tr="En Gelişmiş AI Destekli Next-Gen Platform" data-en="Most Advanced AI-Powered Next-Gen Platform">En Gelişmiş AI Destekli Next-Gen Platform</p>
+            <div class="footer-links">
+                <a href="https://github.com/aliskerembaran3-beep/lol-skill-coach" target="_blank" class="footer-link">GitHub</a>
+                <a href="#" onclick="openShop(); return false;" class="footer-link">Premium</a>
+                <a href="#" onclick="showNotification('info', 'Discord', 'Discord: LolCoach#0000'); return false;" class="footer-link">Discord</a>
+                <a href="#" onclick="showNotification('info', 'Support', 'Email: support@lolcoach.pro'); return false;" class="footer-link">Support</a>
             </div>
-        </div>
-
-        <div class="footer">
-            <p><strong>LoL Skill Coach v3.0 ULTRA</strong></p>
-            <p data-tr="En Gelişmiş AI Platform" data-en="Most Advanced AI Platform">En Gelişmiş AI Platform</p>
+            <p style="margin-top: 20px; font-size: 0.85rem; opacity: 0.5;">
+                Not affiliated with Riot Games © 2025 | Made with 💜 by the Community
+            </p>
         </div>
     </div>
 
-    <div id="profileModal" class="modal">
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeProfileModal()">×</button>
-            <h2 style="color: var(--lol-gold); margin-bottom: 20px;" data-tr="Profil Özelleştir" data-en="Customize Profile">Profil Özelleştir</h2>
-            <div class="input-field">
-                <label data-tr="Avatar Emoji" data-en="Avatar Emoji">Avatar Emoji</label>
-                <input type="text" id="avatarEmoji" placeholder="👤">
+    <!-- AI Assistant -->
+    <div class="ai-assistant-mega">
+        <div class="ai-orb" onclick="toggleAI()">🤖</div>
+        <div class="ai-chat-mega" id="aiChat">
+            <div class="ai-chat-header-mega">
+                <div>
+                    <div class="ai-chat-title">AI Coach Assistant</div>
+                    <div class="ai-status">
+                        <div class="status-dot"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+                <button style="background: none; border: none; color: var(--lol-gold); font-size: 2rem; cursor: pointer;" onclick="toggleAI()">×</button>
             </div>
-            <button class="coach-btn" style="margin-top: 20px;" onclick="saveProfile()">
-                <span data-tr="💾 Kaydet" data-en="💾 Save">💾 Kaydet</span>
-            </button>
+            <div class="ai-messages-mega" id="aiMessages">
+                <div class="message-mega bot">
+                    Merhaba! Ben senin AI koçunum. Nasıl yardımcı olabilirim?
+                    <div class="message-time">şimdi</div>
+                </div>
+            </div>
+            <div class="ai-input-mega">
+                <input type="text" class="ai-input-field" id="aiInput" placeholder="Mesajını yaz...">
+                <button class="ai-send-mega" onclick="sendAIMessage()">📤</button>
+            </div>
         </div>
     </div>
 
     <script>
+        // Global Variables
         var currentLang = 'tr';
-        var stats = JSON.parse(localStorage.getItem('lolUltraStats') || '{"sessions": 0, "totalCS": 0, "streak": 0, "achievements": 0, "selectedChampions": [], "history": []}');
-        var currentTab = 'profile';
-        var progressChart = null;
+        var currentTheme = 'dark';
+        var gameData = JSON.parse(localStorage.getItem('lolUltimateData') || '{"sessions": 0, "totalCS": 0, "streak": 0, "xp": 0, "level": 1, "coins": 0, "trophies": 0, "username": "Player", "avatar": "👤", "achievements": 0, "dailyQuest": 0, "history": []}');
 
-        var champions = ['Aatrox', 'Ahri', 'Akali', 'Akshan', 'Alistar', 'Amumu', 'Anivia', 'Annie', 'Aphelios', 'Ashe', 'AurelionSol', 'Azir', 'Bard', 'Blitzcrank', 'Brand', 'Braum', 'Caitlyn', 'Camille', 'Cassiopeia', 'ChoGath', 'Corki', 'Darius', 'Diana', 'Draven', 'DrMundo', 'Ekko', 'Elise', 'Evelynn', 'Ezreal', 'Fiddlesticks', 'Fiora', 'Fizz', 'Galio', 'Gangplank', 'Garen', 'Gnar', 'Gragas', 'Graves', 'Gwen', 'Hecarim', 'Heimerdinger', 'Illaoi', 'Irelia', 'Ivern', 'Janna', 'JarvanIV', 'Jax', 'Jayce', 'Jhin', 'Jinx', 'KaiSa', 'Kalista', 'Karma', 'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kayn', 'Kennen', 'KhaZix', 'Kindred', 'Kled', 'KogMaw', 'LeBlanc', 'LeeSin', 'Leona', 'Lillia', 'Lissandra', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar', 'Maokai', 'MasterYi', 'MissFortune', 'Mordekaiser', 'Morgana', 'Nami', 'Nasus', 'Nautilus', 'Neeko', 'Nidalee', 'Nocturne', 'Nunu', 'Olaf', 'Orianna', 'Ornn', 'Pantheon', 'Poppy', 'Pyke', 'Qiyana', 'Quinn', 'Rakan', 'Rammus', 'RekSai', 'Rell', 'Renekton', 'Rengar', 'Riven', 'Rumble', 'Ryze', 'Samira', 'Sejuani', 'Senna', 'Seraphine', 'Sett', 'Shaco', 'Shen', 'Shyvana', 'Singed', 'Sion', 'Sivir', 'Skarner', 'Sona', 'Soraka', 'Swain', 'Sylas', 'Syndra', 'TahmKench', 'Taliyah', 'Talon', 'Taric', 'Teemo', 'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'TwistedFate', 'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'VelKoz', 'Vex', 'Vi', 'Viego', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Wukong', 'Xayah', 'Xerath', 'XinZhao', 'Yasuo', 'Yone', 'Yorick', 'Yuumi', 'Zac', 'Zed', 'Zeri', 'Ziggs', 'Zilean', 'Zoe', 'Zyra'];
+        // Initialize
+        window.addEventListener('load', function() {
+            initParticles();
+            updateAllStats();
+            setTimeout(function() {
+                document.getElementById('loadingScreen').style.display = 'none';
+                showNotification('success', 'Welcome!', currentLang === 'tr' ? 'Hoş geldin, ' + gameData.username + '!' : 'Welcome, ' + gameData.username + '!');
+            }, 2000);
+        });
 
-        var achievements = [
-            {id: 1, icon: '🎯', name: 'First Steps', desc: 'İlk analizi tamamla', unlocked: false},
-            {id: 2, icon: '🔥', name: 'On Fire', desc: '5 gün streak yap', unlocked: false},
-            {id: 3, icon: '📊', name: 'Analyst', desc: '10 analiz tamamla', unlocked: false},
-            {id: 4, icon: '⚔️', name: 'Champion Master', desc: '5 champion seç', unlocked: false},
-            {id: 5, icon: '📈', name: 'Progress', desc: 'CS/Min 7+ ulaş', unlocked: false},
-            {id: 6, icon: '💎', name: 'Diamond Mind', desc: 'Diamond hedefle', unlocked: false},
-            {id: 7, icon: '🎬', name: 'Reviewer', desc: 'Replay yükle', unlocked: false},
-            {id: 8, icon: '🏆', name: 'Leaderboard', desc: 'Top 100\'e gir', unlocked: false},
-            {id: 9, icon: '🌟', name: 'Dedicated', desc: '30 gün streak', unlocked: false},
-            {id: 10, icon: '👑', name: 'Legend', desc: '50 analiz tamamla', unlocked: false},
-            {id: 11, icon: '🎖️', name: 'Pro', desc: 'CS/Min 9+ ulaş', unlocked: false},
-            {id: 12, icon: '⚡', name: 'Ultra', desc: 'Tüm özellikleri kullan', unlocked: false}
-        ];
+        // Particles.js Init
+        function initParticles() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 100, density: { enable: true, value_area: 800 } },
+                    color: { value: '#C89B3C' },
+                    shape: { type: 'circle' },
+                    opacity: { value: 0.4, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: { enable: true, distance: 150, color: '#C89B3C', opacity: 0.3, width: 1 },
+                    move: { enable: true, speed: 2, direction: 'none', random: true, out_mode: 'out' }
+                },
+                interactivity: {
+                    events: {
+                        onhover: { enable: true, mode: 'repulse' },
+                        onclick: { enable: true, mode: 'push' }
+                    }
+                }
+            });
+        }
 
-        updateStats();
-        initChampions();
-        initMatchups();
-        initRunes();
-        initLeaderboard();
-        initAchievements();
-
-        document.querySelectorAll('.lang-toggle button').forEach(function(btn) {
+        // Language Switch
+        document.querySelectorAll('.lang-btn').forEach(function(btn) {
             btn.addEventListener('click', function() {
-                document.querySelectorAll('.lang-toggle button').forEach(function(b) {
+                document.querySelectorAll('.lang-btn').forEach(function(b) {
                     b.classList.remove('active');
                 });
                 btn.classList.add('active');
@@ -1047,315 +1512,256 @@
                 document.querySelectorAll('[data-tr]').forEach(function(el) {
                     el.textContent = el.dataset[currentLang];
                 });
+                
+                showNotification('info', '🌍', currentLang === 'tr' ? 'Dil: Türkçe' : 'Language: English');
             });
         });
 
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-btn').forEach(function(btn) {
-                btn.classList.remove('active');
+        // Theme System
+        function setTheme(theme) {
+            document.querySelectorAll('.theme-orb').forEach(function(orb) {
+                orb.classList.remove('active');
             });
-            document.querySelectorAll('.tab-content').forEach(function(content) {
-                content.classList.remove('active');
-            });
+            event.target.classList.add('active');
+            document.body.className = 'theme-' + theme;
+            currentTheme = theme;
+            showNotification('info', '🎨', currentLang === 'tr' ? 'Tema değiştirildi!' : 'Theme changed!');
+        }
+
+        // Notification System
+        function showNotification(type, title, message) {
+            var notifSystem = document.getElementById('notificationSystem');
+            var notif = document.createElement('div');
+            notif.className = 'notification ' + type;
             
-            event.target.closest('.tab-btn').classList.add('active');
-            document.getElementById(tab + 'Tab').classList.add('active');
-            currentTab = tab;
-            
-            if (tab === 'progress') {
-                initProgressChart();
-            }
-        }
-
-        function initChampions() {
-            var grid = document.getElementById('championGrid');
-            grid.innerHTML = champions.map(function(champ) {
-                var selected = stats.selectedChampions.includes(champ) ? 'selected' : '';
-                return '<div class="champion-card ' + selected + '" onclick="toggleChampion(\'' + champ + '\')">' +
-                    '<div class="champion-icon">' + champ.charAt(0) + '</div>' +
-                    '<div class="champion-name">' + champ + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function toggleChampion(champ) {
-            var index = stats.selectedChampions.indexOf(champ);
-            if (index > -1) {
-                stats.selectedChampions.splice(index, 1);
-            } else {
-                if (stats.selectedChampions.length < 10) {
-                    stats.selectedChampions.push(champ);
-                }
-            }
-            saveStats();
-            initChampions();
-            checkAchievements();
-        }
-
-        function initMatchups() {
-            var matchups = [
-                {vs: 'Yasuo', difficulty: 'easy', tips: 'Wind wall izle, E spam sonrası trade at'},
-                {vs: 'Zed', difficulty: 'medium', tips: 'W shadow\'unu track et, R sonrası geri adım'},
-                {vs: 'Akali', difficulty: 'hard', tips: 'Shroud\'da fight alma, pink ward kullan'}
-            ];
-            
-            var grid = document.getElementById('matchupGrid');
-            grid.innerHTML = matchups.map(function(m) {
-                return '<div class="matchup-card">' +
-                    '<div class="matchup-header">' +
-                    '<strong>' + m.vs + '</strong>' +
-                    '<span class="difficulty-' + m.difficulty + '">' + m.difficulty.toUpperCase() + '</span>' +
-                    '</div>' +
-                    '<p>' + m.tips + '</p>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function initRunes() {
-            var runes = ['Conqueror', 'Electrocute', 'Dark Harvest', 'Phase Rush', 'Comet', 'Aery'];
-            var selector = document.getElementById('runeSelector');
-            selector.innerHTML = runes.map(function(rune) {
-                return '<div class="rune-card">' +
-                    '<div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>' +
-                    '<div>' + rune + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function initLeaderboard() {
-            var leaders = [
-                {rank: 1, name: 'ProPlayer123', tier: 'Challenger', cs: 9.2, sessions: 150},
-                {rank: 2, name: 'HighEloGod', tier: 'Grandmaster', cs: 8.9, sessions: 120},
-                {rank: 3, name: 'DiamondAce', tier: 'Master', cs: 8.5, sessions: 100},
-                {rank: 4, name: 'YouHere', tier: 'Diamond', cs: 7.8, sessions: stats.sessions},
-                {rank: 5, name: 'RisingS tar', tier: 'Platinum', cs: 7.2, sessions: 60}
-            ];
-            
-            var tbody = document.getElementById('leaderboardBody');
-            tbody.innerHTML = leaders.map(function(l) {
-                return '<tr>' +
-                    '<td><span class="rank-badge">' + l.rank + '</span></td>' +
-                    '<td><strong>' + l.name + '</strong></td>' +
-                    '<td>' + l.tier + '</td>' +
-                    '<td>' + l.cs + '</td>' +
-                    '<td>' + l.sessions + '</td>' +
-                    '</tr>';
-            }).join('');
-        }
-
-        function initAchievements() {
-            var grid = document.getElementById('achievementGrid');
-            grid.innerHTML = achievements.map(function(ach) {
-                var unlocked = ach.unlocked ? 'unlocked' : '';
-                return '<div class="achievement-card ' + unlocked + '">' +
-                    '<div class="achievement-icon">' + ach.icon + '</div>' +
-                    '<div style="font-weight: 700; margin-bottom: 5px;">' + ach.name + '</div>' +
-                    '<div style="font-size: 0.85rem; opacity: 0.7;">' + ach.desc + '</div>' +
-                    '</div>';
-            }).join('');
-        }
-
-        function initProgressChart() {
-            if (progressChart) {
-                progressChart.destroy();
-            }
-            
-            var ctx = document.getElementById('progressChart').getContext('2d');
-            progressChart = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: stats.history.slice(-7).map(function(h) { return new Date(h.date).toLocaleDateString(); }),
-                    datasets: [{
-                        label: 'CS/Min',
-                        data: stats.history.slice(-7).map(function(h) { return h.cs; }),
-                        borderColor: '#C89B3C',
-                        backgroundColor: 'rgba(200, 155, 60, 0.1)',
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            labels: {
-                                color: '#C89B3C'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            ticks: {
-                                color: '#C89B3C'
-                            },
-                            grid: {
-                                color: 'rgba(200, 155, 60, 0.1)'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#C89B3C'
-                            },
-                            grid: {
-                                color: 'rgba(200, 155, 60, 0.1)'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        document.getElementById('analyzeBtn').addEventListener('click', function() {
-            var server = document.getElementById('server').value;
-            var rank = document.getElementById('rank').value;
-            var role = document.getElementById('role').value;
-            var cs = document.getElementById('cs').value;
-            var targetRank = document.getElementById('targetRank').value;
-
-            if (!cs) {
-                alert(currentLang === 'tr' ? '⚠️ CS/Min girin!' : '⚠️ Enter CS/Min!');
-                return;
-            }
-
-            var resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<div class="loading">ULTRA ANALIZ...</div>';
-
-            setTimeout(function() {
-                var advice = generateAdvice(server, rank, role, cs, targetRank);
-                renderResults(advice);
-                
-                stats.sessions++;
-                stats.totalCS += parseFloat(cs);
-                stats.streak++;
-                stats.history.push({date: new Date().toISOString(), cs: parseFloat(cs)});
-                if (stats.history.length > 30) stats.history.shift();
-                
-                saveStats();
-                updateStats();
-                checkAchievements();
-            }, 2500);
-        });
-
-        document.getElementById('replayFile').addEventListener('change', function(e) {
-            var file = e.target.files[0];
-            if (file) {
-                var resultsDiv = document.getElementById('replayResults');
-                resultsDiv.innerHTML = '<div class="loading">REPLAY ANALİZ EDİLİYOR...</div>';
-                
-                setTimeout(function() {
-                    resultsDiv.innerHTML = '<div class="advice-card">' +
-                        '<div class="advice-header">' +
-                        '<div class="advice-icon">🎬</div>' +
-                        '<h3>REPLAY ANALİZ</h3>' +
-                        '</div>' +
-                        '<div class="advice-content">' +
-                        '<p><strong>Dosya:</strong> ' + file.name + '</p>' +
-                        '<p><strong>Sonuç:</strong> 15 kritik hata tespit edildi</p>' +
-                        '<ul style="margin-top: 15px;">' +
-                        '<li>5:32 - Agresif pozisyon, gank yenildi</li>' +
-                        '<li>12:15 - Ward eksikliği, objektif kaybı</li>' +
-                        '<li>18:45 - Yanlış teamfight pozisyonu</li>' +
-                        '</ul>' +
-                        '</div>' +
-                        '</div>';
-                    
-                    checkAchievements();
-                }, 3000);
-            }
-        });
-
-        function generateAdvice(server, rank, role, cs, targetRank) {
-            return {
-                assessment: 'ULTRA ANALIZ: ' + rank + ' → ' + targetRank + ' hedefi için sistematik plan. ' + role + ' rolünde CS/min ' + cs + '. Champion pool: ' + stats.selectedChampions.join(', '),
-                mechanics: role + ' mekanikleri: Practice tool 30dk/gün. CS drill, combo execution, kiting. Hedef: CS/min 8+. Selected champions için özel mekanik çalışmaları.',
-                macro: 'Macro mastery: Map awareness her 3sn. Objective control, vision score 2.0+. ' + role + ' positioning ve wave management master et.',
-                mental: 'Mental protocol: 2 loss = break. Tilt management kritik. ' + rank + ' → ' + targetRank + ' için consistency #1 öncelik.',
-                progress: 'Roadmap: Günlük 20dk drill + 3 ranked + 1 replay. Haftalık stats review. Aylık milestone tracking. Şu ana kadar ' + stats.sessions + ' analiz tamamlandı!'
+            var icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️',
+                warning: '⚠️'
             };
-        }
-
-        function renderResults(advice) {
-            var icons = {assessment: '📊', mechanics: '⚔️', macro: '🗺️', mental: '🧠', progress: '📈'};
-            var html = '';
             
-            Object.keys(advice).forEach(function(key) {
-                html += '<div class="advice-card">' +
-                    '<div class="advice-header">' +
-                    '<div class="advice-icon">' + icons[key] + '</div>' +
-                    '<h3>' + key.toUpperCase() + '</h3>' +
-                    '</div>' +
-                    '<div class="advice-content">' + advice[key] + '</div>' +
-                    '</div>';
-            });
+            notif.innerHTML = '<div class="notif-icon">' + (icons[type] || title) + '</div>' +
+                '<div class="notif-content">' +
+                '<div class="notif-title">' + title + '</div>' +
+                '<div class="notif-message">' + message + '</div>' +
+                '</div>';
             
-            document.getElementById('results').innerHTML = html;
-        }
-
-        function updateStats() {
-            document.getElementById('totalSessions').textContent = stats.sessions;
-            document.getElementById('avgCS').textContent = stats.sessions > 0 ? (stats.totalCS / stats.sessions).toFixed(1) : '0';
-            document.getElementById('currentStreak').textContent = stats.streak;
-            document.getElementById('improvement').textContent = Math.min(100, stats.sessions * 3) + '%';
-            document.getElementById('achievements').textContent = achievements.filter(function(a) { return a.unlocked; }).length + '/12';
-        }
-
-        function checkAchievements() {
-            if (stats.sessions >= 1) achievements[0].unlocked = true;
-            if (stats.streak >= 5) achievements[1].unlocked = true;
-            if (stats.sessions >= 10) achievements[2].unlocked = true;
-            if (stats.selectedChampions.length >= 5) achievements[3].unlocked = true;
-            if (stats.totalCS / stats.sessions >= 7) achievements[4].unlocked = true;
+            notifSystem.appendChild(notif);
             
-            stats.achievements = achievements.filter(function(a) { return a.unlocked; }).length;
-            saveStats();
-            updateStats();
-            initAchievements();
+            setTimeout(function() {
+                notif.style.animation = 'notifSlide 0.5s ease-out reverse';
+                setTimeout(function() {
+                    notif.remove();
+                }, 500);
+            }, 4000);
         }
 
-        function saveStats() {
-            localStorage.setItem('lolUltraStats', JSON.stringify(stats));
+        // AI Chat
+        function toggleAI() {
+            document.getElementById('aiChat').classList.toggle('active');
         }
 
-        function openProfileModal() {
-            document.getElementById('profileModal').classList.add('active');
+        function sendAIMessage() {
+            var input = document.getElementById('aiInput');
+            var message = input.value.trim();
+            if (!message) return;
+            
+            addAIMessage('user', message);
+            input.value = '';
+            
+            setTimeout(function() {
+                var responses = [
+                    'Harika soru! CS/min geliştirmek için practice tool\'da günde 20 dakika çalış.',
+                    'Mükemmel! Wave management master etmek rank yükseltmenin anahtarı.',
+                    'Kesinlikle! Mini-map\'e her 3-5 saniyede bakmalısın. Timer kur!',
+                    'Evet! Mental game LP kazanmanın %60\'ı. Tilt olma, 2 loss = mola.',
+                    'Harika ilerleme! Şu anda çok iyi gidiyorsun. Devam et!',
+                    'Öncelikle mechanics çalış, sonra macro. Adım adım ilerle!'
+                ];
+                addAIMessage('bot', responses[Math.floor(Math.random() * responses.length)]);
+            }, 1000);
         }
 
-        function closeProfileModal() {
-            document.getElementById('profileModal').classList.remove('active');
+        function addAIMessage(type, text) {
+            var messagesDiv = document.getElementById('aiMessages');
+            var msgDiv = document.createElement('div');
+            msgDiv.className = 'message-mega ' + type;
+            
+            var time = new Date().toLocaleTimeString('tr-TR', {hour: '2-digit', minute: '2-digit'});
+            msgDiv.innerHTML = text + '<div class="message-time">' + time + '</div>';
+            
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        function saveProfile() {
-            var emoji = document.getElementById('avatarEmoji').value;
-            if (emoji) {
-                document.querySelector('.profile-avatar').textContent = emoji;
-                closeProfileModal();
+        document.getElementById('aiInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendAIMessage();
+        });
+
+        // XP & Level System
+        function gainXP(amount) {
+            gameData.xp += amount;
+            checkLevelUp();
+            updateAllStats();
+            saveData();
+        }
+
+        function checkLevelUp() {
+            var xpNeeded = gameData.level * 1000;
+            while (gameData.xp >= xpNeeded) {
+                gameData.xp -= xpNeeded;
+                gameData.level++;
+                xpNeeded = gameData.level * 1000;
+                showNotification('success', '🎉 LEVEL UP!', currentLang === 'tr' ? 'Seviye ' + gameData.level + ' oldun!' : 'Level ' + gameData.level + ' reached!');
+                gameData.coins += 100 * gameData.level;
             }
         }
 
-        function shareProgress() {
-            var shareCard = document.createElement('div');
-            shareCard.className = 'share-card';
-            shareCard.innerHTML = '<h1 style="margin-bottom: 20px;">⚔️ MY PROGRESS ⚔️</h1>' +
-                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + stats.sessions + '</strong> Analyses</p>' +
-                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + (stats.totalCS / stats.sessions).toFixed(1) + '</strong> CS/Min</p>' +
-                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + stats.streak + '</strong> Day Streak</p>' +
-                '<p style="margin-top: 20px; font-size: 0.9rem;">LoL Skill Coach v3.0 ULTRA</p>';
+        // Stats Update
+        function updateAllStats() {
+            document.getElementById('totalSessions').textContent = gameData.sessions;
+            document.getElementById('avgCS').textContent = gameData.sessions > 0 ? (gameData.totalCS / gameData.sessions).toFixed(1) : '0';
+            document.getElementById('currentStreak').textContent = gameData.streak;
+            document.getElementById('improvement').textContent = Math.min(100, gameData.sessions * 2) + '%';
+            document.getElementById('globalRank').textContent = '#' + Math.max(1, 1000 - gameData.sessions * 8);
+            document.getElementById('achievements').textContent = gameData.achievements + '/20';
             
-            document.body.appendChild(shareCard);
+            var xpNeeded = gameData.level * 1000;
+            var xpProgress = (gameData.xp / xpNeeded * 100);
+            document.getElementById('xpFill').style.width = xpProgress + '%';
+            document.getElementById('xpText').textContent = gameData.xp + ' / ' + xpNeeded + ' XP';
+            document.getElementById('levelDisplay').textContent = gameData.level;
             
-            html2canvas(shareCard).then(function(canvas) {
-                canvas.toBlob(function(blob) {
-                    var file = new File([blob], 'lol-progress.png', {type: 'image/png'});
-                    if (navigator.share) {
-                        navigator.share({
-                            files: [file],
-                            title: 'My LoL Progress',
-                            text: 'Check out my League progress!'
-                        });
-                    }
+            document.getElementById('profileName').textContent = gameData.username;
+            document.getElementById('coinsDisplay').textContent = gameData.coins;
+            document.getElementById('trophiesDisplay').textContent = gameData.trophies;
+            document.getElementById('avatarDisplay').textContent = gameData.avatar;
+            
+            var questProgress = (gameData.dailyQuest / 3 * 100);
+            document.getElementById('questProgress').style.width = questProgress + '%';
+            document.getElementById('questText').textContent = gameData.dailyQuest + '/3';
+            
+            if (gameData.dailyQuest >= 3) {
+                document.querySelector('.quest-reward').style.background = 'linear-gradient(135deg, rgba(0, 255, 127, 0.3), rgba(200, 155, 60, 0.3))';
+            }
+        }
+
+        // Daily Quest
+        function completeQuestStep() {
+            if (gameData.dailyQuest < 3) {
+                gameData.dailyQuest++;
+                if (gameData.dailyQuest === 3) {
+                    gameData.coins += 500;
+                    showNotification('success', '🎯 Quest Complete!', currentLang === 'tr' ? '+500 Coin kazandın!' : 'Earned +500 Coins!');
+                }
+                updateAllStats();
+                saveData();
+            }
+        }
+
+        // Mini Games
+        function playGame(gameType) {
+            var games = {
+                'cs-trainer': {
+                    title: 'CS Trainer',
+                    desc: currentLang === 'tr' ? 'Last hit timing pratiği yapıyorsun...' : 'Practicing last hit timing...'
+                },
+                'reflex': {
+                    title: 'Reflex Test',
+                    desc: currentLang === 'tr' ? 'Reflekslerini test ediyorsun...' : 'Testing your reflexes...'
+                },
+                'map-awareness': {
+                    title: 'Map Awareness',
+                    desc: currentLang === 'tr' ? 'Mini-map okuma pratiği...' : 'Practicing map reading...'
+                },
+                'skillshot': {
+                    title: 'Skillshot Trainer',
+                    desc: currentLang === 'tr' ? 'Skillshot isabet çalışması...' : 'Practicing skillshot accuracy...'
+                }
+            };
+            
+            var game = games[gameType];
+            showNotification('info', '🎮 ' + game.title, game.desc);
+            
+            setTimeout(function() {
+                var score = Math.floor(Math.random() * 50) + 50;
+                gainXP(score);
+                gameData.coins += score;
+                showNotification('success', '🎮 Game Complete!', currentLang === 'tr' ? 'Skor: ' + score + ' | +' + score + ' XP & Coins!' : 'Score: ' + score + ' | +' + score + ' XP & Coins!');
+                updateAllStats();
+                saveData();
+            }, 3000);
+        }
+
+        // Profile
+        function openProfile() {
+            showNotification('info', '👤 Profile', currentLang === 'tr' ? 'Profil özellikleri yakında!' : 'Profile features coming soon!');
+        }
+
+        // Shop
+        function openShop() {
+            showNotification('info', '🛒 Shop', currentLang === 'tr' ? 'Shop özellikleri yakında!' : 'Shop features coming soon!');
+        }
+
+        // Share
+        function shareApp() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'LoL Ultimate++ Coach',
+                    text: 'Check out this amazing LoL coaching platform!',
+                    url: window.location.href
+                }).then(function() {
+                    showNotification('success', '📤', currentLang === 'tr' ? 'Paylaşıldı!' : 'Shared!');
                 });
-                document.body.removeChild(shareCard);
-            });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                showNotification('success', '📋', currentLang === 'tr' ? 'Link kopyalandı!' : 'Link copied!');
+            }
+        }
+
+        // Stat Detail View
+        function showStat(type) {
+            var details = {
+                'sessions': currentLang === 'tr' ? 'Toplam ' + gameData.sessions + ' analiz tamamladın!' : 'Completed ' + gameData.sessions + ' total analyses!',
+                'cs': currentLang === 'tr' ? 'Ortalama CS/min: ' + (gameData.totalCS / gameData.sessions).toFixed(1) : 'Average CS/min: ' + (gameData.totalCS / gameData.sessions).toFixed(1),
+                'streak': currentLang === 'tr' ? gameData.streak + ' gün üst üste aktifsin!' : gameData.streak + ' days active streak!',
+                'growth': currentLang === 'tr' ? '%' + Math.min(100, gameData.sessions * 2) + ' genel gelişim!' : Math.min(100, gameData.sessions * 2) + '% overall growth!',
+                'rank': currentLang === 'tr' ? 'Global sıralaman: #' + Math.max(1, 1000 - gameData.sessions * 8) : 'Global rank: #' + Math.max(1, 1000 - gameData.sessions * 8),
+                'achievements': currentLang === 'tr' ? gameData.achievements + '/20 başarı kazandın!' : 'Unlocked ' + gameData.achievements + '/20 achievements!'
+            };
+            showNotification('info', '📊 Stats', details[type]);
+        }
+
+        // Data Management
+        function saveData() {
+            localStorage.setItem('lolUltimateData', JSON.stringify(gameData));
+        }
+
+        // Simulate Quick Analysis (for testing)
+        setTimeout(function() {
+            var btn = document.createElement('button');
+            btn.textContent = '⚡ Quick Test Analysis';
+            btn.className = 'action-btn';
+            btn.style.position = 'fixed';
+            btn.style.bottom = '200px';
+            btn.style.right = '40px';
+            btn.style.zIndex = '998';
+            btn.onclick = function() {
+                gameData.sessions++;
+                gameData.totalCS += 7.5;
+                gameData.streak++;
+                gameData.trophies += 10;
+                gainXP(150);
+                completeQuestStep();
+                showNotification('success', '🎉 Analysis Complete!', currentLang === 'tr' ? '+150 XP, +10 Trophies!' : '+150 XP, +10 Trophies!');
+            };
+            document.body.appendChild(btn);
+        }, 3000);
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('data:text/javascript,');
         }
     </script>
 </body>
