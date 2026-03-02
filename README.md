@@ -17,7 +17,7 @@ League of Legends için AI destekli gelişmiş skill geliştirme platformu.
 
 ## 🚀 Canlı Demo
 
-**[🎯 Şimdi Dene!](https://kullaniciadin.github.io/lol-skill-coach/)**
+**[🎯 Şimdi Dene!](https://aliskerembaran3-beep.github.io/lol-skill-coach/)**
 
 ## 📱 Ekran Görüntüleri
 
@@ -29,7 +29,7 @@ Projeyi bilgisayarında çalıştırmak için:
 
 1. Repoyu klonla veya indir:
 ```bash
-git clone https://github.com/kullaniciadin/lol-skill-coach.git
+git clone https://github.com/aliskerembaran3-beep/lol-skill-coach.git
 ```
 
 2. `index.html` dosyasını tarayıcıda aç
@@ -105,9 +105,9 @@ Bu proje Riot Games ile bağlantılı değildir ve onaylanmamıştır. League of
 
 ## 📧 İletişim
 
-Proje Sahibi - [@aliskerembaran](https://github.com/kullaniciadin)
+Proje Sahibi - [@aliskerembaran](https://github.com/aliskerembaran3-beep)
 
-Proje Linki: [https://github.com/kullaniciadin/lol-skill-coach](https://github.com/kullaniciadin/lol-skill-coach)
+Proje Linki: [https://github.com/aliskerembaran3-beep/lol-skill-coach](https://github.com/aliskerembaran3-beep/lol-skill-coach)
 
 ## 🙏 Teşekkürler
 
@@ -134,7 +134,7 @@ Proje Linki: [https://github.com/kullaniciadin/lol-skill-coach](https://github.c
 ```
 MIT License
 
-Copyright (c) 2025 [Senin Adın]
+Copyright (c) 2025 [aliskerembaran3-beep]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -163,8 +163,8 @@ SOFTWARE.
 
 Artık projen GitHub'da ve canlı sitende! İşte erişim linklerin:
 ```
-GitHub Repo: https://github.com/kullaniciadin/lol-skill-coach
-Canlı Site:  https://kullaniciadin.github.io/lol-skill-coach/
+GitHub Repo: https://github.com/aliskerembaran3-beep/lol-skill-coach
+Canlı Site:  https://aliskerembaran3-beep.github.io/lol-skill-coach/
 ```
 
 ---
