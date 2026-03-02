@@ -3,18 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="League of Legends için AI destekli gelişmiş skill geliştirme platformu. Rank'ini yükselt, mekaniklerini geliştir!">
-    <meta name="keywords" content="LoL, League of Legends, skill coach, rank boost, gaming coach, esports">
-    <meta name="author" content="LoL Skill Coach">
-    
-    <!-- Open Graph (sosyal medya paylaşım) -->
-    <meta property="og:title" content="LoL Skill Coach - AI Destekli Gelişim Platformu">
-    <meta property="og:description" content="League of Legends için kişiselleştirilmiş gelişim tavsiyeleri al!">
-    <meta property="og:type" content="website">
-    
-    <title>LoL Skill Coach v2.0 - AI Destekli Gelişim Platformu</title>
+    <meta name="description" content="League of Legends için AI destekli ultra gelişmiş skill platformu">
+    <title>LoL Skill Coach v3.0 ULTRA</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -28,7 +22,8 @@
             --lol-dark: #010A13;
             --lol-darker: #000000;
             --lol-accent: #785A28;
-            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --lol-red: #E8384F;
+            --lol-green: #00FF7F;
         }
 
         body {
@@ -61,14 +56,13 @@
             opacity: 0.02;
             background-image: 
                 repeating-linear-gradient(0deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px),
-                repeating-linear-gradient(60deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px),
-                repeating-linear-gradient(120deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px);
+                repeating-linear-gradient(60deg, transparent, transparent 50px, var(--lol-gold) 50px, var(--lol-gold) 51px);
             z-index: 1;
             pointer-events: none;
         }
 
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 40px 20px;
             position: relative;
@@ -102,6 +96,25 @@
             text-shadow: 0 0 10px rgba(200, 155, 60, 0.5);
         }
 
+        .profile-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid var(--lol-gold);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .profile-avatar:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.6);
+        }
+
         .controls {
             display: flex;
             gap: 15px;
@@ -125,7 +138,7 @@
             cursor: pointer;
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             color: rgba(255,255,255,0.6);
             font-size: 0.85rem;
             border-radius: 4px;
@@ -134,26 +147,6 @@
         .lang-toggle button.active {
             background: var(--lol-gold);
             color: var(--lol-darker);
-        }
-
-        .theme-toggle {
-            background: rgba(200, 155, 60, 0.1);
-            border: 1px solid var(--lol-gold);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1.2rem;
-            transition: var(--transition);
-        }
-
-        .theme-toggle:hover {
-            background: rgba(200, 155, 60, 0.2);
-            transform: scale(1.05);
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 10px;
         }
 
         .icon-btn {
@@ -166,10 +159,7 @@
             font-family: 'Outfit', sans-serif;
             font-weight: 600;
             font-size: 0.9rem;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 5px;
+            transition: all 0.3s ease;
             white-space: nowrap;
         }
 
@@ -177,11 +167,6 @@
             background: var(--lol-gold);
             color: var(--lol-darker);
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(200, 155, 60, 0.4);
-        }
-
-        .icon-btn:active {
-            transform: translateY(0);
         }
 
         header {
@@ -200,8 +185,7 @@
             text-transform: uppercase;
             text-shadow: 
                 0 0 20px rgba(200, 155, 60, 0.5),
-                0 0 40px rgba(200, 155, 60, 0.3),
-                2px 2px 4px rgba(0, 0, 0, 0.8);
+                0 0 40px rgba(200, 155, 60, 0.3);
             animation: titleGlow 3s ease-in-out infinite alternate;
         }
 
@@ -220,8 +204,8 @@
 
         .version-badge {
             display: inline-block;
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            color: var(--lol-darker);
+            background: linear-gradient(135deg, var(--lol-red), var(--lol-gold));
+            color: white;
             padding: 5px 15px;
             border-radius: 20px;
             font-size: 0.85rem;
@@ -235,29 +219,57 @@
             50% { transform: scale(1.05); }
         }
 
-        .notification {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            color: var(--lol-darker);
-            padding: 15px 25px;
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .tab-btn {
+            background: rgba(200, 155, 60, 0.1);
+            border: 2px solid rgba(200, 155, 60, 0.3);
+            padding: 12px 24px;
             border-radius: 12px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.7);
+            font-family: 'Outfit', sans-serif;
             font-weight: 600;
-            box-shadow: 0 4px 20px rgba(200, 155, 60, 0.5);
-            z-index: 999;
-            animation: slideInRight 0.5s ease-out;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            border-color: var(--lol-gold);
+            color: var(--lol-darker);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(200, 155, 60, 0.4);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--lol-gold);
+            transform: translateY(-2px);
+        }
+
+        .tab-content {
             display: none;
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .stats-overview {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
         }
@@ -268,7 +280,7 @@
             border-radius: 12px;
             padding: 20px;
             text-align: center;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
@@ -291,7 +303,6 @@
         .stat-box:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 30px rgba(200, 155, 60, 0.3);
-            border-color: var(--lol-blue);
         }
 
         .stat-number {
@@ -299,8 +310,6 @@
             font-size: 2rem;
             color: var(--lol-gold);
             font-weight: 900;
-            position: relative;
-            z-index: 1;
         }
 
         .stat-label {
@@ -308,8 +317,6 @@
             color: rgba(255, 255, 255, 0.7);
             text-transform: uppercase;
             margin-top: 5px;
-            position: relative;
-            z-index: 1;
         }
 
         .profile-section {
@@ -318,28 +325,7 @@
             border-radius: 16px;
             padding: 40px;
             margin-bottom: 40px;
-            box-shadow: 
-                0 10px 50px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 rgba(200, 155, 60, 0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .profile-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(200, 155, 60, 0.1) 0%, transparent 70%);
-            animation: rotate 20s linear infinite;
-            pointer-events: none;
-        }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
         }
 
         .section-title {
@@ -351,19 +337,6 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .section-title::before {
-            content: '⬥';
-            font-size: 1.2rem;
-            animation: spin 3s linear infinite;
-        }
-
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
         }
 
         .input-grid {
@@ -371,12 +344,6 @@
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 25px;
             margin-bottom: 30px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .input-field {
-            position: relative;
         }
 
         .input-field label {
@@ -399,191 +366,272 @@
             color: white;
             font-family: 'Outfit', sans-serif;
             font-size: 1rem;
-            font-weight: 500;
-            transition: var(--transition);
+            transition: all 0.3s ease;
         }
 
         .input-field input:focus,
         .input-field select:focus {
             outline: none;
             border-color: var(--lol-blue);
-            background: rgba(11, 198, 180, 0.05);
             box-shadow: 0 0 20px rgba(11, 198, 180, 0.2);
         }
 
-        .input-field input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .champion-pool {
-            display: flex;
+        .champion-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
             gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 10px;
-        }
-
-        .champion-tag {
-            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            color: var(--lol-darker);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            animation: slideIn 0.3s ease-out;
-        }
-
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .champion-tag button {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 10px;
             background: rgba(0, 0, 0, 0.3);
-            border: none;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
+            border-radius: 12px;
+        }
+
+        .champion-card {
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.2), rgba(11, 198, 180, 0.1));
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
             cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .champion-card:hover {
+            border-color: var(--lol-gold);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(200, 155, 60, 0.4);
+        }
+
+        .champion-card.selected {
+            border-color: var(--lol-blue);
+            background: linear-gradient(135deg, rgba(11, 198, 180, 0.3), rgba(200, 155, 60, 0.2));
+        }
+
+        .champion-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1rem;
-            transition: var(--transition);
+            margin: 0 auto 8px;
+            font-size: 1.5rem;
         }
 
-        .champion-tag button:hover {
-            background: rgba(0, 0, 0, 0.6);
-            transform: scale(1.1);
+        .champion-name {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .analyze-section {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
+        .chart-container {
+            background: rgba(1, 10, 19, 0.8);
+            border: 2px solid var(--lol-gold);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-wrapper {
             position: relative;
-            z-index: 1;
+            height: 300px;
         }
 
-        textarea {
-            width: 100%;
-            min-height: 120px;
-            padding: 16px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(200, 155, 60, 0.3);
-            border-radius: 8px;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95rem;
-            resize: vertical;
-            transition: var(--transition);
+        .file-upload {
+            border: 2px dashed var(--lol-gold);
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(200, 155, 60, 0.05);
         }
 
-        textarea:focus {
-            outline: none;
+        .file-upload:hover {
             border-color: var(--lol-blue);
-            background: rgba(11, 198, 180, 0.05);
-            box-shadow: 0 0 20px rgba(11, 198, 180, 0.2);
+            background: rgba(11, 198, 180, 0.1);
         }
 
-        textarea::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+        .file-upload input {
+            display: none;
+        }
+
+        .matchup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .matchup-card {
+            background: linear-gradient(135deg, rgba(1, 10, 19, 0.9), rgba(1, 10, 19, 0.7));
+            border: 2px solid var(--lol-gold);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .matchup-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(200, 155, 60, 0.3);
+        }
+
+        .matchup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .difficulty-easy { color: var(--lol-green); }
+        .difficulty-medium { color: var(--lol-gold); }
+        .difficulty-hard { color: var(--lol-red); }
+
+        .rune-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .rune-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(200, 155, 60, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .rune-card:hover {
+            border-color: var(--lol-gold);
+            transform: scale(1.05);
+        }
+
+        .rune-card.selected {
+            border-color: var(--lol-blue);
+            background: rgba(11, 198, 180, 0.2);
+        }
+
+        .achievement-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .achievement-card {
+            background: linear-gradient(135deg, rgba(200, 155, 60, 0.1), rgba(1, 10, 19, 0.9));
+            border: 2px solid rgba(200, 155, 60, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card.unlocked {
+            border-color: var(--lol-gold);
+            box-shadow: 0 0 20px rgba(200, 155, 60, 0.4);
+        }
+
+        .achievement-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            filter: grayscale(100%);
+            transition: all 0.3s ease;
+        }
+
+        .achievement-card.unlocked .achievement-icon {
+            filter: grayscale(0%);
+            animation: bounce 0.5s ease-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .leaderboard-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .leaderboard-table th,
+        .leaderboard-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(200, 155, 60, 0.2);
+        }
+
+        .leaderboard-table th {
+            background: rgba(200, 155, 60, 0.2);
+            color: var(--lol-gold);
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .leaderboard-table tr:hover {
+            background: rgba(200, 155, 60, 0.1);
+        }
+
+        .rank-badge {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
+            color: var(--lol-darker);
+            font-weight: 900;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .share-card {
+            background: linear-gradient(135deg, var(--lol-gold), var(--lol-blue));
+            border-radius: 16px;
+            padding: 40px;
+            color: var(--lol-darker);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .share-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, transparent 70%);
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .coach-btn {
             width: 100%;
-            height: 100%;
-            min-height: 120px;
+            padding: 20px;
             background: linear-gradient(135deg, var(--lol-gold) 0%, var(--lol-accent) 100%);
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             color: var(--lol-darker);
             font-family: 'Cinzel', serif;
             font-size: 1.3rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.3s ease;
             box-shadow: 0 8px 30px rgba(200, 155, 60, 0.4);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .coach-btn::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            transition: width 0.6s ease, height 0.6s ease;
-        }
-
-        .coach-btn:hover::before {
-            width: 400%;
-            height: 400%;
         }
 
         .coach-btn:hover {
             transform: translateY(-3px);
             box-shadow: 0 12px 40px rgba(200, 155, 60, 0.6);
-        }
-
-        .coach-btn:active {
-            transform: translateY(-1px);
-        }
-
-        .coach-btn span {
-            position: relative;
-            z-index: 1;
-        }
-
-        .tips-section {
-            background: linear-gradient(135deg, rgba(11, 198, 180, 0.1), rgba(1, 10, 19, 0.9));
-            border: 2px solid var(--lol-blue);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 40px;
-        }
-
-        .tip-card {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            border-left: 4px solid var(--lol-gold);
-            transition: var(--transition);
-        }
-
-        .tip-card:hover {
-            transform: translateX(10px);
-            background: rgba(0, 0, 0, 0.5);
-            border-left-color: var(--lol-blue);
-        }
-
-        .tip-title {
-            color: var(--lol-gold);
-            font-weight: 700;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
-        }
-
-        .tip-content {
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
         }
 
         .results {
@@ -598,19 +646,6 @@
             margin-bottom: 25px;
             box-shadow: 0 10px 40px rgba(11, 198, 180, 0.2);
             position: relative;
-            overflow: hidden;
-            animation: cardAppear 0.5s ease-out;
-        }
-
-        @keyframes cardAppear {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .advice-card::before {
@@ -641,7 +676,6 @@
             justify-content: center;
             font-size: 1.6rem;
             background: linear-gradient(135deg, var(--lol-gold), var(--lol-accent));
-            box-shadow: 0 4px 15px rgba(200, 155, 60, 0.4);
         }
 
         .advice-header h3 {
@@ -649,40 +683,12 @@
             font-size: 1.5rem;
             color: var(--lol-gold);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
 
         .advice-content {
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.9;
             font-size: 1.05rem;
-        }
-
-        .advice-actions {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(200, 155, 60, 0.2);
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .mini-btn {
-            background: rgba(200, 155, 60, 0.1);
-            border: 1px solid var(--lol-gold);
-            padding: 8px 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            color: var(--lol-gold);
-            font-size: 0.85rem;
-            font-weight: 600;
-            transition: var(--transition);
-        }
-
-        .mini-btn:hover {
-            background: var(--lol-gold);
-            color: var(--lol-darker);
-            transform: translateY(-2px);
         }
 
         .loading {
@@ -692,7 +698,6 @@
             font-size: 1.4rem;
             color: var(--lol-gold);
             text-transform: uppercase;
-            letter-spacing: 0.2em;
         }
 
         .loading::after {
@@ -711,39 +716,6 @@
             to { transform: rotate(360deg); }
         }
 
-        .history-section {
-            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95), rgba(1, 10, 19, 0.8));
-            border: 2px solid var(--lol-gold);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 40px;
-        }
-
-        .history-item {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: var(--transition);
-        }
-
-        .history-item:hover {
-            background: rgba(0, 0, 0, 0.5);
-            transform: translateX(10px);
-        }
-
-        .history-date {
-            color: var(--lol-blue);
-            font-weight: 600;
-        }
-
-        .history-data {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
         .footer {
             text-align: center;
             padding: 40px 20px;
@@ -753,52 +725,50 @@
             margin-top: 60px;
         }
 
-        .footer a {
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(1, 10, 19, 0.95), rgba(1, 10, 19, 0.9));
+            border: 2px solid var(--lol-gold);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
             color: var(--lol-gold);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .footer a:hover {
-            color: var(--lol-blue);
-            text-decoration: underline;
-        }
-
-        @media print {
-            .top-bar, .controls, .action-buttons, .tips-section, .history-section, .footer {
-                display: none !important;
-            }
-            body {
-                background: white;
-                color: black;
-            }
-            .advice-card {
-                page-break-inside: avoid;
-            }
+            font-size: 2rem;
+            cursor: pointer;
         }
 
         @media (max-width: 968px) {
-            .analyze-section {
+            .input-grid {
                 grid-template-columns: 1fr;
             }
-
-            .coach-btn {
-                min-height: 60px;
-            }
-
-            .top-bar {
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .controls {
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-
-            .action-buttons {
-                width: 100%;
-                justify-content: center;
+            .champion-grid {
+                grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
             }
         }
 
@@ -806,33 +776,12 @@
             .container {
                 padding: 20px 15px;
             }
-
-            .input-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .profile-section {
-                padding: 25px 20px;
-            }
-
             header {
                 margin-top: 120px;
             }
-
-            .stats-overview {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            h1 {
-                font-size: 2.5rem;
-            }
-
-            .subtitle {
-                font-size: 1rem;
-            }
-
-            .icon-btn span {
-                display: none;
+            .tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
             }
         }
     </style>
@@ -840,201 +789,252 @@
 <body>
     <div class="hex-pattern"></div>
     
-    <div class="notification" id="notification"></div>
-    
     <div class="top-bar">
         <div class="logo">
             <span>⚔️</span>
-            <span>LoL COACH</span>
+            <span>LoL COACH ULTRA</span>
         </div>
         <div class="controls">
+            <div class="profile-avatar" onclick="openProfileModal()">👤</div>
             <div class="lang-toggle">
                 <button class="active" data-lang="tr">🇹🇷 TR</button>
                 <button data-lang="en">🇬🇧 EN</button>
             </div>
-            <button class="theme-toggle" onclick="toggleTheme()" title="Tema Değiştir">🌙</button>
-            <div class="action-buttons">
-                <button class="icon-btn" onclick="shareResults()" title="Paylaş">
-                    📤 <span data-tr="Paylaş" data-en="Share">Paylaş</span>
-                </button>
-                <button class="icon-btn" onclick="printResults()" title="Yazdır">
-                    🖨️ <span data-tr="Yazdır" data-en="Print">Yazdır</span>
-                </button>
-                <button class="icon-btn" onclick="clearHistory()" title="Temizle">
-                    🗑️ <span data-tr="Temizle" data-en="Clear">Temizle</span>
-                </button>
-            </div>
+            <button class="icon-btn" onclick="shareProgress()">📤</button>
+            <button class="icon-btn" onclick="window.print()">🖨️</button>
         </div>
     </div>
 
     <div class="container">
         <header>
             <h1>LEAGUE COACH</h1>
-            <p class="subtitle" data-tr="Gelişmiş AI Destekli Skill Platformu" data-en="Advanced AI-Powered Skill Platform">Gelişmiş AI Destekli Skill Platformu</p>
-            <span class="version-badge">v2.0 PRO</span>
+            <p class="subtitle" data-tr="Ultra AI Platform" data-en="Ultra AI Platform">Ultra AI Platform</p>
+            <span class="version-badge">v3.0 ULTRA 🔥</span>
         </header>
 
         <div class="stats-overview">
             <div class="stat-box">
                 <div class="stat-number" id="totalSessions">0</div>
-                <div class="stat-label" data-tr="Toplam Analiz" data-en="Total Analyses">Toplam Analiz</div>
+                <div class="stat-label" data-tr="Analiz" data-en="Analyses">Analiz</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number" id="avgCS">0</div>
-                <div class="stat-label" data-tr="Ortalama CS/Min" data-en="Average CS/Min">Ortalama CS/Min</div>
+                <div class="stat-label">CS/Min</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number" id="currentStreak">0</div>
-                <div class="stat-label" data-tr="Gün Streak" data-en="Day Streak">Gün Streak</div>
+                <div class="stat-label" data-tr="Streak" data-en="Streak">Streak</div>
             </div>
             <div class="stat-box">
                 <div class="stat-number" id="improvement">0%</div>
-                <div class="stat-label" data-tr="Gelişim Oranı" data-en="Improvement Rate">Gelişim Oranı</div>
+                <div class="stat-label" data-tr="Gelişim" data-en="Growth">Gelişim</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-number" id="achievements">0/12</div>
+                <div class="stat-label" data-tr="Başarı" data-en="Achievements">Başarı</div>
             </div>
         </div>
 
-        <div class="tips-section">
-            <div class="section-title">💡 <span data-tr="Günün Pro İpuçları" data-en="Today's Pro Tips">Günün Pro İpuçları</span></div>
-            <div class="tip-card">
-                <div class="tip-title" data-tr="🎯 CS Optimizasyonu" data-en="🎯 CS Optimization">🎯 CS Optimization</div>
-                <div class="tip-content" data-tr="Practice tool'da 10 dakika SADECE farming yap. Hedef: 80+ CS. Ability kullanma, sadece basic attack. Sonra ability'lerle tekrarla." data-en="Practice 10 minutes of ONLY farming in practice tool. Target: 80+ CS. No abilities, only basic attacks. Then repeat with abilities.">Practice tool'da 10 dakika SADECE farming yap. Hedef: 80+ CS. Ability kullanma, sadece basic attack. Sonra ability'lerle tekrarla.</div>
-            </div>
-            <div class="tip-card">
-                <div class="tip-title" data-tr="🗺️ Map Awareness Pro Tactic" data-en="🗺️ Map Awareness Pro Tactic">🗺️ Map Awareness Pro Tactic</div>
-                <div class="tip-content" data-tr="Telefona timer kur: Her 5 saniyede bir 'bip'. Her bip = mini-map kontrolü. 1 hafta yap, alışkanlık olacak. Challenger'lar saniyede 2-3 kez bakar." data-en="Set phone timer: Every 5 seconds 'beep'. Each beep = mini-map check. Do for 1 week, it becomes habit. Challengers check 2-3 times per second.">Telefona timer kur: Her 5 saniyede bir 'bip'. Her bip = mini-map kontrolü. 1 hafta yap, alışkanlık olacak. Challenger'lar saniyede 2-3 kez bakar.</div>
-            </div>
-            <div class="tip-card">
-                <div class="tip-title" data-tr="🧠 Mental Reset Tekniği" data-en="🧠 Mental Reset Technique">🧠 Mental Reset Technique</div>
-                <div class="tip-content" data-tr="2 ranked loss = STOP. 10 dakika mola: 5 push-up, 1 bardak su, derin nefes. Tilt = LP loss. Fresh mind = LP gain. Matematik bu kadar basit." data-en="2 ranked losses = STOP. 10-minute break: 5 push-ups, 1 glass water, deep breath. Tilt = LP loss. Fresh mind = LP gain. Math is this simple.">2 ranked loss = STOP. 10 dakika mola: 5 push-up, 1 bardak su, derin nefes. Tilt = LP loss. Fresh mind = LP gain. Matematik bu kadar basit.</div>
-            </div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('profile')">
+                <span data-tr="📊 Profil & Analiz" data-en="📊 Profile & Analysis">📊 Profil & Analiz</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('champions')">
+                <span data-tr="⚔️ Champions" data-en="⚔️ Champions">⚔️ Champions</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('matchups')">
+                <span data-tr="🎯 Matchups" data-en="🎯 Matchups">🎯 Matchups</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('builds')">
+                <span data-tr="📜 Builds" data-en="📜 Builds">📜 Builds</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('replay')">
+                <span data-tr="🎬 Replay" data-en="🎬 Replay">🎬 Replay</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('progress')">
+                <span data-tr="📈 İlerleme" data-en="📈 Progress">📈 İlerleme</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('leaderboard')">
+                <span data-tr="🏆 Liderlik" data-en="🏆 Leaderboard">🏆 Liderlik</span>
+            </button>
+            <button class="tab-btn" onclick="switchTab('achievements')">
+                <span data-tr="🎖️ Başarılar" data-en="🎖️ Achievements">🎖️ Başarılar</span>
+            </button>
         </div>
 
-        <div class="profile-section">
-            <div class="section-title">⚙️ <span data-tr="Oyuncu Profili" data-en="Player Profile">Oyuncu Profili</span></div>
-            <div class="input-grid">
-                <div class="input-field">
-                    <label data-tr="Sunucu" data-en="Server">Sunucu</label>
-                    <select id="server">
-                        <option value="EUW">EUW</option>
-                        <option value="TR" selected>TR</option>
-                        <option value="NA">NA</option>
-                        <option value="KR">KR</option>
-                        <option value="EUNE">EUNE</option>
-                        <option value="LAN">LAN</option>
-                        <option value="LAS">LAS</option>
-                        <option value="BR">BR</option>
-                        <option value="OCE">OCE</option>
-                        <option value="RU">RU</option>
-                        <option value="JP">JP</option>
-                    </select>
+        <div id="profileTab" class="tab-content active">
+            <div class="profile-section">
+                <div class="section-title">⚙️ <span data-tr="Oyuncu Profili" data-en="Player Profile">Oyuncu Profili</span></div>
+                <div class="input-grid">
+                    <div class="input-field">
+                        <label data-tr="Sunucu" data-en="Server">Sunucu</label>
+                        <select id="server">
+                            <option value="TR" selected>TR</option>
+                            <option value="EUW">EUW</option>
+                            <option value="NA">NA</option>
+                            <option value="KR">KR</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label data-tr="Rank" data-en="Rank">Rank</label>
+                        <select id="rank">
+                            <option value="Iron">Iron</option>
+                            <option value="Bronze">Bronze</option>
+                            <option value="Silver">Silver</option>
+                            <option value="Gold">Gold</option>
+                            <option value="Platinum">Platinum</option>
+                            <option value="Diamond">Diamond</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label data-tr="Rol" data-en="Role">Rol</label>
+                        <select id="role">
+                            <option value="Top">Top</option>
+                            <option value="Jungle">Jungle</option>
+                            <option value="Mid">Mid</option>
+                            <option value="ADC">ADC</option>
+                            <option value="Support">Support</option>
+                        </select>
+                    </div>
+                    <div class="input-field">
+                        <label>CS/Min</label>
+                        <input type="number" id="cs" placeholder="6.5" step="0.1">
+                    </div>
+                    <div class="input-field">
+                        <label data-tr="Hedef" data-en="Target">Hedef</label>
+                        <select id="targetRank">
+                            <option value="Gold">Gold</option>
+                            <option value="Platinum">Platinum</option>
+                            <option value="Diamond">Diamond</option>
+                        </select>
+                    </div>
                 </div>
-
-                <div class="input-field">
-                    <label data-tr="Mevcut Rank" data-en="Current Rank">Mevcut Rank</label>
-                    <select id="rank">
-                        <option value="Iron">Iron</option>
-                        <option value="Bronze">Bronze</option>
-                        <option value="Silver">Silver</option>
-                        <option value="Gold">Gold</option>
-                        <option value="Platinum">Platinum</option>
-                        <option value="Emerald">Emerald</option>
-                        <option value="Diamond">Diamond</option>
-                        <option value="Master">Master</option>
-                        <option value="Grandmaster">Grandmaster</option>
-                        <option value="Challenger">Challenger</option>
-                    </select>
-                </div>
-
-                <div class="input-field">
-                    <label data-tr="Ana Rol" data-en="Main Role">Ana Rol</label>
-                    <select id="role">
-                        <option value="Top">Top Lane</option>
-                        <option value="Jungle">Jungle</option>
-                        <option value="Mid">Mid Lane</option>
-                        <option value="ADC">ADC (Bot)</option>
-                        <option value="Support">Support</option>
-                    </select>
-                </div>
-
-                <div class="input-field">
-                    <label data-tr="Champion Pool (Enter ile ekle)" data-en="Champion Pool (Press Enter)">Champion Pool (Enter ile ekle)</label>
-                    <input type="text" id="championInput" placeholder="Örn: Yasuo, Zed, Ahri">
-                    <div class="champion-pool" id="championPool"></div>
-                </div>
-
-                <div class="input-field">
-                    <label data-tr="Ortalama CS/Min" data-en="Average CS/Min">Ortalama CS/Min</label>
-                    <input type="number" id="cs" placeholder="6.5" step="0.1" min="0" max="15">
-                </div>
-
-                <div class="input-field">
-                    <label data-tr="Hedef Rank" data-en="Target Rank">Hedef Rank</label>
-                    <select id="targetRank">
-                        <option value="Silver">Silver</option>
-                        <option value="Gold">Gold</option>
-                        <option value="Platinum">Platinum</option>
-                        <option value="Emerald">Emerald</option>
-                        <option value="Diamond">Diamond</option>
-                        <option value="Master">Master</option>
-                        <option value="Grandmaster">Grandmaster</option>
-                        <option value="Challenger">Challenger</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="section-title">📝 <span data-tr="Hedefler & Sorun Analizi" data-en="Goals & Issue Analysis">Hedefler & Sorun Analizi</span></div>
-            <div class="analyze-section">
-                <div class="input-field">
-                    <label data-tr="Sorunlarını Detaylı Anlat (Ne kadar detay o kadar iyi tavsiye)" data-en="Describe Issues in Detail (More detail = Better advice)">Sorunlarını Detaylı Anlat</label>
-                    <textarea id="issues" placeholder="Örn: Late game'de throw atıyorum, takım kavgalarında yanlış positioning yapıyorum, tilt olup 5 game üst üste kaybediyorum, enemy jungler'ı track edemiyorum..."></textarea>
-                </div>
-                <button class="coach-btn" id="coachBtn">
-                    <span data-tr="⚔️ AI Analiz Başlat" data-en="⚔️ Start AI Analysis">⚔️ AI Analiz Başlat</span>
+                <button class="coach-btn" id="analyzeBtn">
+                    <span data-tr="⚔️ ULTRA ANALİZ BAŞLAT" data-en="⚔️ START ULTRA ANALYSIS">⚔️ ULTRA ANALİZ BAŞLAT</span>
                 </button>
             </div>
+            <div id="results"></div>
         </div>
 
-        <div id="historySection" class="history-section" style="display: none;">
-            <div class="section-title">📊 <span data-tr="Analiz Geçmişin" data-en="Your Analysis History">Analiz Geçmişin</span></div>
-            <div id="historyList"></div>
+        <div id="championsTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">⚔️ <span data-tr="Champion Seçimi" data-en="Champion Selection">Champion Seçimi</span></div>
+                <div class="champion-grid" id="championGrid"></div>
+            </div>
         </div>
 
-        <div id="results" class="results"></div>
+        <div id="matchupsTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">🎯 <span data-tr="Matchup Database" data-en="Matchup Database">Matchup Database</span></div>
+                <div class="matchup-grid" id="matchupGrid"></div>
+            </div>
+        </div>
+
+        <div id="buildsTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">📜 <span data-tr="Rune & Build Önerileri" data-en="Rune & Build Recommendations">Rune & Build Önerileri</span></div>
+                <div class="rune-selector" id="runeSelector"></div>
+            </div>
+        </div>
+
+        <div id="replayTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">🎬 <span data-tr="Replay Analizi" data-en="Replay Analysis">Replay Analizi</span></div>
+                <div class="file-upload" onclick="document.getElementById('replayFile').click()">
+                    <input type="file" id="replayFile" accept=".rofl">
+                    <p style="font-size: 3rem; margin-bottom: 20px;">📁</p>
+                    <p style="font-size: 1.2rem; color: var(--lol-gold);" data-tr="Replay Dosyası Yükle (.rofl)" data-en="Upload Replay File (.rofl)">Replay Dosyası Yükle (.rofl)</p>
+                    <p style="margin-top: 10px; color: rgba(255,255,255,0.5);" data-tr="AI ile otomatik analiz" data-en="AI automated analysis">AI ile otomatik analiz</p>
+                </div>
+                <div id="replayResults"></div>
+            </div>
+        </div>
+
+        <div id="progressTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">📈 <span data-tr="Gelişim Grafikleri" data-en="Progress Charts">Gelişim Grafikleri</span></div>
+                <div class="chart-container">
+                    <div class="chart-wrapper">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="leaderboardTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">🏆 <span data-tr="Global Liderlik Tablosu" data-en="Global Leaderboard">Global Liderlik Tablosu</span></div>
+                <table class="leaderboard-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th data-tr="Oyuncu" data-en="Player">Oyuncu</th>
+                            <th>Rank</th>
+                            <th>CS/Min</th>
+                            <th data-tr="Analiz" data-en="Sessions">Analiz</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboardBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="achievementsTab" class="tab-content">
+            <div class="profile-section">
+                <div class="section-title">🎖️ <span data-tr="Başarılar" data-en="Achievements">Başarılar</span></div>
+                <div class="achievement-grid" id="achievementGrid"></div>
+            </div>
+        </div>
 
         <div class="footer">
-            <p><strong data-tr="LoL Skill Coach v2.0 PRO" data-en="LoL Skill Coach v2.0 PRO">LoL Skill Coach v2.0 PRO</strong></p>
-            <p data-tr="Gelişmiş AI Destekli Gelişim Platformu | 100% Ücretsiz" data-en="Advanced AI-Powered Development Platform | 100% Free">Gelişmiş AI Destekli Gelişim Platformu | 100% Ücretsiz</p>
-            <p style="margin-top: 10px; font-size: 0.85rem;">
-                <span data-tr="Riot Games ile bağlantılı değildir." data-en="Not affiliated with Riot Games.">Riot Games ile bağlantılı değildir.</span>
-            </p>
-            <p style="margin-top: 15px;">
-                <a href="https://github.com" target="_blank">GitHub</a> | 
-                <a href="#" onclick="alert('Discord: YourDiscord#0000'); return false;">Discord</a> | 
-                <a href="#" onclick="alert('Geri bildirim için teşekkürler!'); return false;" data-tr="Geri Bildirim" data-en="Feedback">Geri Bildirim</a>
-            </p>
-            <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.5;">
-                Made with ⚔️ for the League community
-            </p>
+            <p><strong>LoL Skill Coach v3.0 ULTRA</strong></p>
+            <p data-tr="En Gelişmiş AI Platform" data-en="Most Advanced AI Platform">En Gelişmiş AI Platform</p>
+        </div>
+    </div>
+
+    <div id="profileModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeProfileModal()">×</button>
+            <h2 style="color: var(--lol-gold); margin-bottom: 20px;" data-tr="Profil Özelleştir" data-en="Customize Profile">Profil Özelleştir</h2>
+            <div class="input-field">
+                <label data-tr="Avatar Emoji" data-en="Avatar Emoji">Avatar Emoji</label>
+                <input type="text" id="avatarEmoji" placeholder="👤">
+            </div>
+            <button class="coach-btn" style="margin-top: 20px;" onclick="saveProfile()">
+                <span data-tr="💾 Kaydet" data-en="💾 Save">💾 Kaydet</span>
+            </button>
         </div>
     </div>
 
     <script>
         var currentLang = 'tr';
-        var champions = [];
-        var analysisHistory = JSON.parse(localStorage.getItem('lolCoachHistory') || '[]');
-        var stats = JSON.parse(localStorage.getItem('lolCoachStats') || '{"sessions": 0, "totalCS": 0, "streak": 0, "lastDate": null}');
+        var stats = JSON.parse(localStorage.getItem('lolUltraStats') || '{"sessions": 0, "totalCS": 0, "streak": 0, "achievements": 0, "selectedChampions": [], "history": []}');
+        var currentTab = 'profile';
+        var progressChart = null;
+
+        var champions = ['Aatrox', 'Ahri', 'Akali', 'Akshan', 'Alistar', 'Amumu', 'Anivia', 'Annie', 'Aphelios', 'Ashe', 'AurelionSol', 'Azir', 'Bard', 'Blitzcrank', 'Brand', 'Braum', 'Caitlyn', 'Camille', 'Cassiopeia', 'ChoGath', 'Corki', 'Darius', 'Diana', 'Draven', 'DrMundo', 'Ekko', 'Elise', 'Evelynn', 'Ezreal', 'Fiddlesticks', 'Fiora', 'Fizz', 'Galio', 'Gangplank', 'Garen', 'Gnar', 'Gragas', 'Graves', 'Gwen', 'Hecarim', 'Heimerdinger', 'Illaoi', 'Irelia', 'Ivern', 'Janna', 'JarvanIV', 'Jax', 'Jayce', 'Jhin', 'Jinx', 'KaiSa', 'Kalista', 'Karma', 'Karthus', 'Kassadin', 'Katarina', 'Kayle', 'Kayn', 'Kennen', 'KhaZix', 'Kindred', 'Kled', 'KogMaw', 'LeBlanc', 'LeeSin', 'Leona', 'Lillia', 'Lissandra', 'Lucian', 'Lulu', 'Lux', 'Malphite', 'Malzahar', 'Maokai', 'MasterYi', 'MissFortune', 'Mordekaiser', 'Morgana', 'Nami', 'Nasus', 'Nautilus', 'Neeko', 'Nidalee', 'Nocturne', 'Nunu', 'Olaf', 'Orianna', 'Ornn', 'Pantheon', 'Poppy', 'Pyke', 'Qiyana', 'Quinn', 'Rakan', 'Rammus', 'RekSai', 'Rell', 'Renekton', 'Rengar', 'Riven', 'Rumble', 'Ryze', 'Samira', 'Sejuani', 'Senna', 'Seraphine', 'Sett', 'Shaco', 'Shen', 'Shyvana', 'Singed', 'Sion', 'Sivir', 'Skarner', 'Sona', 'Soraka', 'Swain', 'Sylas', 'Syndra', 'TahmKench', 'Taliyah', 'Talon', 'Taric', 'Teemo', 'Thresh', 'Tristana', 'Trundle', 'Tryndamere', 'TwistedFate', 'Twitch', 'Udyr', 'Urgot', 'Varus', 'Vayne', 'Veigar', 'VelKoz', 'Vex', 'Vi', 'Viego', 'Viktor', 'Vladimir', 'Volibear', 'Warwick', 'Wukong', 'Xayah', 'Xerath', 'XinZhao', 'Yasuo', 'Yone', 'Yorick', 'Yuumi', 'Zac', 'Zed', 'Zeri', 'Ziggs', 'Zilean', 'Zoe', 'Zyra'];
+
+        var achievements = [
+            {id: 1, icon: '🎯', name: 'First Steps', desc: 'İlk analizi tamamla', unlocked: false},
+            {id: 2, icon: '🔥', name: 'On Fire', desc: '5 gün streak yap', unlocked: false},
+            {id: 3, icon: '📊', name: 'Analyst', desc: '10 analiz tamamla', unlocked: false},
+            {id: 4, icon: '⚔️', name: 'Champion Master', desc: '5 champion seç', unlocked: false},
+            {id: 5, icon: '📈', name: 'Progress', desc: 'CS/Min 7+ ulaş', unlocked: false},
+            {id: 6, icon: '💎', name: 'Diamond Mind', desc: 'Diamond hedefle', unlocked: false},
+            {id: 7, icon: '🎬', name: 'Reviewer', desc: 'Replay yükle', unlocked: false},
+            {id: 8, icon: '🏆', name: 'Leaderboard', desc: 'Top 100\'e gir', unlocked: false},
+            {id: 9, icon: '🌟', name: 'Dedicated', desc: '30 gün streak', unlocked: false},
+            {id: 10, icon: '👑', name: 'Legend', desc: '50 analiz tamamla', unlocked: false},
+            {id: 11, icon: '🎖️', name: 'Pro', desc: 'CS/Min 9+ ulaş', unlocked: false},
+            {id: 12, icon: '⚡', name: 'Ultra', desc: 'Tüm özellikleri kullan', unlocked: false}
+        ];
 
         updateStats();
-        updateHistory();
-
-        function showNotification(message, duration) {
-            var notif = document.getElementById('notification');
-            notif.textContent = message;
-            notif.style.display = 'block';
-            setTimeout(function() {
-                notif.style.display = 'none';
-            }, duration || 3000);
-        }
+        initChampions();
+        initMatchups();
+        initRunes();
+        initLeaderboard();
+        initAchievements();
 
         document.querySelectorAll('.lang-toggle button').forEach(function(btn) {
             btn.addEventListener('click', function() {
@@ -1045,399 +1045,318 @@
                 currentLang = btn.dataset.lang;
                 
                 document.querySelectorAll('[data-tr]').forEach(function(el) {
-                    if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
-                        var key = currentLang === 'en' ? 'placeholderEn' : 'placeholderTr';
-                        if (el.dataset[key]) {
-                            el.placeholder = el.dataset[key];
-                        }
-                    } else {
-                        el.textContent = el.dataset[currentLang];
-                    }
+                    el.textContent = el.dataset[currentLang];
                 });
-
-                showNotification(currentLang === 'tr' ? '🌍 Dil: Türkçe' : '🌍 Language: English', 2000);
             });
         });
 
-        document.getElementById('championInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter' || e.key === ',') {
-                e.preventDefault();
-                var value = this.value.trim().replace(',', '');
-                if (value && !champions.includes(value) && champions.length < 10) {
-                    champions.push(value);
-                    renderChampions();
-                    this.value = '';
-                    showNotification('✅ ' + value + ' eklendi!', 2000);
-                } else if (champions.length >= 10) {
-                    showNotification('⚠️ Maksimum 10 champion eklenebilir!', 2000);
-                }
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(function(btn) {
+                btn.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(function(content) {
+                content.classList.remove('active');
+            });
+            
+            event.target.closest('.tab-btn').classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+            currentTab = tab;
+            
+            if (tab === 'progress') {
+                initProgressChart();
             }
-        });
+        }
 
-        function renderChampions() {
-            var pool = document.getElementById('championPool');
-            pool.innerHTML = champions.map(function(champ) {
-                return '<div class="champion-tag">' + champ + '<button onclick="removeChampion(\'' + champ + '\')">×</button></div>';
+        function initChampions() {
+            var grid = document.getElementById('championGrid');
+            grid.innerHTML = champions.map(function(champ) {
+                var selected = stats.selectedChampions.includes(champ) ? 'selected' : '';
+                return '<div class="champion-card ' + selected + '" onclick="toggleChampion(\'' + champ + '\')">' +
+                    '<div class="champion-icon">' + champ.charAt(0) + '</div>' +
+                    '<div class="champion-name">' + champ + '</div>' +
+                    '</div>';
             }).join('');
         }
 
-        function removeChampion(champ) {
-            champions = champions.filter(function(c) { return c !== champ; });
-            renderChampions();
-            showNotification('🗑️ ' + champ + ' kaldırıldı', 2000);
-        }
-
-        function generateAdvice(server, rank, role, champion, cs, targetRank, issues) {
-            var rankOrder = ['Iron', 'Bronze', 'Silver', 'Gold', 'Platinum', 'Emerald', 'Diamond', 'Master', 'Grandmaster', 'Challenger'];
-            var currentIndex = rankOrder.indexOf(rank);
-            var targetIndex = rankOrder.indexOf(targetRank);
-            var rankGap = targetIndex - currentIndex;
-
-            var roleAdvice = {
-                'Top': {
-                    mechanics: 'Wave management master ol. Her wave\'in ne zaman freeze, slow push, fast push yapılacağını öğren. TP kullanımını optimize et - sadece bot lane değil, objektif ve splitpush için de kullan. Trade pattern\'lerini champion matchup\'larına göre öğren. Level 1-3 power spike\'larını bil. 1v1 all-in window\'larını tanı.',
-                    macro: 'Herald ve Baron kontrolü için objektif priority öğren. Split push ile pressure yaratmayı ve takımla birleşme zamanlamasını mükemmelleştir. Teleport advantage\'ı kullan. 1-3-1 ve 1-4 composition\'ları anla. Side wave\'leri yönet. Enemy TP\'sini track et.',
-                    progress: 'Günlük 20 dakika wave management pratiği. Haftada 3 replay analizi - özellikle death\'lere odaklan. Matchup spreadsheet tut (win condition, power spike, counter play). TP timer\'larını takip et. Side wave catching drills yap.'
-                },
-                'Jungle': {
-                    mechanics: 'Clear speed ve kiting pratiği yap - jungle camp\'leri hasar almadan temizle. İlk clear\'da 3:15\'te scuttle\'a ulaş. Gank path\'lerini optimize et. Smite timing ve objective secure çalış - %90+ başarı hedefle. Flash combos öğren. Counter gank positioning master et.',
-                    macro: 'Counter jungling, enemy jungle tracking ve vision control master ol. Lane state okumayı ve gank timing\'i geliştir. Priority lanes\'i tanı - hangi lane ganklenince carry eder? Objective setup ve zone control öğren. Wave crash timing\'i ile gank synergy yap. Vertical jungling concepts öğren.',
-                    progress: 'Her oyun enemy jungle track et - mental map tut. Clear time\'ı iyileştir - practice tool\'da drill yap. Vision score 2.0+ per minute hedefle. Objective secure %90+ başarı. Pathing VOD review yap - nerede zaman kaybettin?'
-                },
-                'Mid': {
-                    mechanics: 'Wave clear ve roam timing çalış. Skill shot accuracy artır - %70+ hedefle, AimLab kullan. Combo execution pratiği yap - her champion için optimal combo sequence. Mana management öğren - gereksiz ability spam yapma. All-in window\'ları tanı. Level 2-3-6 power spike\'ları kullan. Sidelane prioritization.',
-                    macro: 'Map pressure ve roaming rotations öğren. Side lane help ve objective fight positioning geliştir. Priority yönetimi - ne zaman push, ne zaman roam? Jungle synergy kur - invade timing, scuttle control. Vision control mid priority - pink ward placement. Tempo control - ne zaman accelerate, ne zaman stall?',
-                    progress: 'Roam success rate track et - %60+ hedefle. Kill participation %60+ hedefle. 15 dakikada 130+ CS. Mid prio anlayışını geliştir. Her oyun sonrası damage graph\'ı kontrol et - %30+ team damage hedefle. Solokill opportunities kaç tane?'
-                },
-                'ADC': {
-                    mechanics: 'Orb walking ve kiting mükemmelleştir - practice tool\'da 30 dakika. Attack move click (A-click) kullan, setting\'lerden optimize et. Trading stance ve positioning çalış. All-in farkındalığı - enemy cooldown tracking. Spell dodge timing - reaction time geliştir. Auto-reset combos - her ADC için öğren.',
-                    macro: 'Wave management ve safe farming öğren. Recall timing - minion wave crash edilince. Teamfight positioning - frontline\'dan mesafe, range respect. Target selection - en yakın threat mi, backline dive mi? Item spike timing - power spike\'larda agresif ol. Objective setup - sieging ve zone control.',
-                    progress: 'Death\'leri azalt - oyun başı 3\'ün altı hedef. CS/min 7+ yap. Teamfight damage %35+ hedefle. KDA 3.0+ tut. Positioning review - her death replay izle. Attack speed setting optimize et. Damage per minute track et.'
-                },
-                'Support': {
-                    mechanics: 'Vision control ve warding patterns öğren - deep ward timing, defensive ward placement, offensive ward aggressive play için. Engage/disengage timing çalış - enemy cooldown\'ları bil. Peel mechanics geliştir - kim öncelik? Ability layering - CC chain sequence. Body block - skillshot\'ları blokla.',
-                    macro: 'Roaming timing ve mid/jungle synergy kur - ADC farm safety kontrol et önce. Objective setup ve vision denial çalış. Lane pressure - ne zaman harass, ne zaman defensive? Vision score 1.5+ per minute minimum. Sweeper usage optimize et. Wave crash ile roam sync et.',
-                    progress: 'Vision score oyun başı 100+ hedefle. Kill participation %70+ - sen engage edersen bu kolay. Ward survival time artır - görünmeden ward at. Roam success rate track et. Death per game 4\'ün altı. Pink ward usage - sürekli map\'te 1 pink olsun.'
-                }
-            };
-
-            var csAdvice = parseFloat(cs) < 5 ?
-                'CS/min çok düşük (' + cs + '). ACIL: Practice tool\'da 10 dakika SADECE farming, ability yok. Hedef: 70+ CS. Sonraki 10 dakika ability ile tekrarla. Her gün 20 dakika drill. Last hit timing kas hafızasına işlemeli.' :
-                parseFloat(cs) < 6 ? 
-                'CS/min düşük (' + cs + '). Practice tool\'da 10 dakika farming yap. Hedef: 80+ CS. Last hit timing\'i çalış. Sonra ability\'lerle 85+ hedefle. Günde 15 dakika CS drill zorunlu.' :
-                parseFloat(cs) < 7.5 ?
-                'CS/min orta seviye (' + cs + '). İyileştirilebilir. Wave management öğren, back timing optimize et, 8+ CS hedefle. Jungle camp\'lerini rotasyona ekle. Side wave unutma. 15dk\'da 110+ hedef.' :
-                parseFloat(cs) < 9 ?
-                'CS/min iyi (' + cs + ')! Diamond+ için yeterli. Şimdi CS\'yi sürdürürken kill participation artır. Vision ve macro\'ya odaklan. Side wave management master et.' :
-                'CS/min excellent (' + cs + ')! Challenger seviyesi. Gold lead\'i pressure\'a ve vision control\'e çevir. Map presence artır.';
-
-            var championAdvice = champion ? 
-                'Champion pool: ' + champion + '. Her champion için: 1) Matchup spreadsheet (power spike, win condition, counter). 2) OTP stream\'leri izle. 3) Combo muscle memory - practice tool 30dk/gün. 4) Matchup VOD review - nasıl carry edilir? Champion mastery 100k+ her biri için hedef.' :
-                'Champion pool oluştur: Birincil (comfort), secondary (ban/counter için), tertiary (flex/off-role). Her biri için 50+ oyun. Matchup knowledge geliştir. Blind pick\'e uygun seç.';
-
-            var issuesAdvice = issues ? 
-                'Sorunun: "' + issues + '". SPESIFIK ÇÖZÜM: Bu sorun üzerine her oyun odaklan. Replay\'de SADECE bu hatayı ara. Pattern yakala: Ne zaman oluyor? Neden? Nasıl önlenir? Notebook tut. YouTube\'da spesifik video ara. High elo replays izle - onlar nasıl yapıyor?' :
-                'Replay review: Her 5 oyundan 1\'ini izle. Death\'leri kategorize et: positioning, mechanics, macro, mental. Pattern bul. Aynı hatayı tekrar etme. Excel\'de track et.';
-
-            var mentalAdvice = rankGap > 3 ?
-                'Çok büyük rank hedefi (' + rank + ' → ' + targetRank + ', ' + rankGap + ' tier). Bu 200-400 oyun. UZUN VADELI: Günlük küçük hedefler. Aylık milestone\'lar. Sabır kritik. 2 loss = stop. Quality > quantity. LP değil, improvement odaklı düşün. Her ay rank review yap.' :
-                rankGap > 1 ?
-                'Orta seviye hedef (' + rank + ' → ' + targetRank + '). 100-200 oyun. Realistic ve achievable. Consistency kritik. Mental game öncelik. Blame = LP loss. Self-improvement = LP gain. Her hafta gelişimi measure et.' :
-                'Yakın hedef! 50-100 oyun yeterli. Son sprint. Mental stability en önemli. Tilt = kaybedilen LP. Fresh mind = kazanılan LP. Discipline ve patience. Mute all düşün.';
-
-            var progressPlan = 'GÜNLÜK RUTİN: Warm-up 15dk (practice tool - mechanics + CS drill), 2-4 ranked (fresh mind ile), 1 replay review (death analysis). HAFTALIK: 15-20 ranked oyun, 3-5 replay review, 1 matchup study session. AYLIK: Stats review - CS/min, KDA, vision score, win rate trend. Improvement graph çiz. Hedef adjust et.';
-
-            var drillPlan = 'ÖZEL DRILL PROGRAMI: Mechanics (30dk): Champion combo practice, kiting drill, skillshot accuracy. CS (15dk): Last hit timing, wave management scenarios. Macro (VOD): High elo games izle, decision-making analysis. Mental: Meditation 5dk, tilt management checklist.';
-
-            if (currentLang === 'tr') {
-                return {
-                    assessment: rank + ' seviyesinden ' + targetRank + ' hedefine ulaşmak için sistematik ve disiplinli gelişim gerekiyor. ' + role + ' rolünde CS/min ' + cs + ' ortalamayla fundamentals\'ın var ama refine edilmeli. ' + championAdvice + ' ' + issuesAdvice + ' Rank gap: ' + rankGap + ' tier. Realistic timeline: ' + (rankGap > 3 ? '3-6 ay' : rankGap > 1 ? '2-3 ay' : '1-2 ay') + ' consistent çalışmayla. Win rate %55+ gerekli.',
-                    
-                    mechanics: '【MECHANICS MASTER PLAN】 ' + roleAdvice[role].mechanics + ' 【CS ANALİZ】 ' + csAdvice + ' 【DAILY PRACTICE】 Practice tool minimum 20 dakika: Combo execution, kiting drill, CS practice. Muscle memory geliştir - 1000+ tekrar. Warm-up rutin: 10dk mechanics, 5dk CS drill. 【MEASUREMENT】 ' + roleAdvice[role].progress,
-                    
-                    macro: '【MACRO GAME PLAN】 ' + roleAdvice[role].macro + ' 【MAP AWARENESS】 Mini-map her 3-5 saniyede - timer kullan, alışkanlık yap. 【OBJECTIVE CONTROL】 Drake 5dk, Baron 6dk, Herald 6dk, Buff 5dk - ezbere bil. 【WAVE MANAGEMENT】 Freeze/slow push/fast push timing\'leri master et. 【VISION】 Pink ward always on map. 【DECISION TREE】 "If X then Y" logic kur. Macro decision VOD review yap.',
-                    
-                    mental: '【MENTAL GAME PROTOCOL】 ' + mentalAdvice + ' 【WARM-UP】 1-2 normal/ARAM - fresh başla. 【TILT MANAGEMENT】 2 loss = MANDATORY 10dk break. Fiziksel aktivite: 10 push-up, su iç, derin nefes. 【WIN STREAK】 3+ win = agresif, momentum kullan. 【LOSE STREAK】 2+ loss = STOP, mental reset. 【MUTE STRATEGY】 Chat negativity varsa /mute all. Ping yeterli. 【MINDSET】 LP geçici, skill kalıcı. Her oyun learning opportunity.',
-
-                    progress: '【GELİŞİM PLANI - 30 GÜN】 ' + progressPlan + ' 【SPESİFİK DRILLS】 ' + drillPlan + ' 【TRACKING SYSTEM】 Excel/Google Sheets: Her 10 oyun - CS/min, KDA, Vision Score, Death Count, Win Rate, Most Common Mistake. Grafik çiz, trend gör. 【MILESTONES】 Hafta 1: Fundamentals fix. Hafta 2: Mechanics polish. Hafta 3: Macro improve. Hafta 4: Consistency test. 【ACCOUNTABILITY】 Günlük checklist: Warm-up ✓, Ranked oyunlar ✓, Replay review ✓, Drill ✓. Streak tut. 【ADJUSTMENT】 2 hafta sonra plan review - ne çalışıyor, ne çalışmıyor? Iterate.'
-                };
+        function toggleChampion(champ) {
+            var index = stats.selectedChampions.indexOf(champ);
+            if (index > -1) {
+                stats.selectedChampions.splice(index, 1);
             } else {
-                return {
-                    assessment: 'To reach ' + targetRank + ' from ' + rank + ', you need systematic and disciplined improvement. As ' + role + ' with ' + cs + ' CS/min average, you have fundamentals but need refinement. ' + championAdvice + ' ' + issuesAdvice + ' Rank gap: ' + rankGap + ' tiers. Realistic timeline: ' + (rankGap > 3 ? '3-6 months' : rankGap > 1 ? '2-3 months' : '1-2 months') + ' with consistent work. Need %55+ win rate.',
-                    
-                    mechanics: '【MECHANICS MASTER PLAN】 ' + roleAdvice[role].mechanics + ' 【CS ANALYSIS】 ' + csAdvice + ' 【DAILY PRACTICE】 Practice tool minimum 20 minutes: Combo execution, kiting drills, CS practice. Build muscle memory - 1000+ reps. Warm-up routine: 10min mechanics, 5min CS drill. 【MEASUREMENT】 ' + roleAdvice[role].progress,
-                    
-                    macro: '【MACRO GAME PLAN】 ' + roleAdvice[role].macro + ' 【MAP AWARENESS】 Mini-map every 3-5 seconds - use timer, build habit. 【OBJECTIVE CONTROL】 Drake 5min, Baron 6min, Herald 6min, Buff 5min - memorize. 【WAVE MANAGEMENT】 Master freeze/slow push/fast push timings. 【VISION】 Pink ward always on map. 【DECISION TREE】 Build "If X then Y" logic. VOD review macro decisions.',
-                    
-                    mental: '【MENTAL GAME PROTOCOL】 ' + mentalAdvice + ' 【WARM-UP】 1-2 normals/ARAM - start fresh. 【TILT MANAGEMENT】 2 losses = MANDATORY 10min break. Physical activity: 10 push-ups, drink water, deep breath. 【WIN STREAK】 3+ wins = aggressive, use momentum. 【LOSE STREAK】 2+ losses = STOP, mental reset. 【MUTE STRATEGY】 If chat negative, /mute all. Pings sufficient. 【MINDSET】 LP temporary, skill permanent. Every game is learning opportunity.',
-
-                    progress: '【PROGRESS PLAN - 30 DAYS】 ' + progressPlan + ' 【SPECIFIC DRILLS】 ' + drillPlan + ' 【TRACKING SYSTEM】 Excel/Google Sheets: Every 10 games - CS/min, KDA, Vision Score, Death Count, Win Rate, Most Common Mistake. Graph it, see trends. 【MILESTONES】 Week 1: Fix fundamentals. Week 2: Polish mechanics. Week 3: Improve macro. Week 4: Test consistency. 【ACCOUNTABILITY】 Daily checklist: Warm-up ✓, Ranked games ✓, Replay review ✓, Drills ✓. Track streak. 【ADJUSTMENT】 Review plan after 2 weeks - what works, what doesn\'t? Iterate.'
-                };
+                if (stats.selectedChampions.length < 10) {
+                    stats.selectedChampions.push(champ);
+                }
             }
+            saveStats();
+            initChampions();
+            checkAchievements();
         }
 
-        document.getElementById('coachBtn').addEventListener('click', function() {
+        function initMatchups() {
+            var matchups = [
+                {vs: 'Yasuo', difficulty: 'easy', tips: 'Wind wall izle, E spam sonrası trade at'},
+                {vs: 'Zed', difficulty: 'medium', tips: 'W shadow\'unu track et, R sonrası geri adım'},
+                {vs: 'Akali', difficulty: 'hard', tips: 'Shroud\'da fight alma, pink ward kullan'}
+            ];
+            
+            var grid = document.getElementById('matchupGrid');
+            grid.innerHTML = matchups.map(function(m) {
+                return '<div class="matchup-card">' +
+                    '<div class="matchup-header">' +
+                    '<strong>' + m.vs + '</strong>' +
+                    '<span class="difficulty-' + m.difficulty + '">' + m.difficulty.toUpperCase() + '</span>' +
+                    '</div>' +
+                    '<p>' + m.tips + '</p>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function initRunes() {
+            var runes = ['Conqueror', 'Electrocute', 'Dark Harvest', 'Phase Rush', 'Comet', 'Aery'];
+            var selector = document.getElementById('runeSelector');
+            selector.innerHTML = runes.map(function(rune) {
+                return '<div class="rune-card">' +
+                    '<div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>' +
+                    '<div>' + rune + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function initLeaderboard() {
+            var leaders = [
+                {rank: 1, name: 'ProPlayer123', tier: 'Challenger', cs: 9.2, sessions: 150},
+                {rank: 2, name: 'HighEloGod', tier: 'Grandmaster', cs: 8.9, sessions: 120},
+                {rank: 3, name: 'DiamondAce', tier: 'Master', cs: 8.5, sessions: 100},
+                {rank: 4, name: 'YouHere', tier: 'Diamond', cs: 7.8, sessions: stats.sessions},
+                {rank: 5, name: 'RisingS tar', tier: 'Platinum', cs: 7.2, sessions: 60}
+            ];
+            
+            var tbody = document.getElementById('leaderboardBody');
+            tbody.innerHTML = leaders.map(function(l) {
+                return '<tr>' +
+                    '<td><span class="rank-badge">' + l.rank + '</span></td>' +
+                    '<td><strong>' + l.name + '</strong></td>' +
+                    '<td>' + l.tier + '</td>' +
+                    '<td>' + l.cs + '</td>' +
+                    '<td>' + l.sessions + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        function initAchievements() {
+            var grid = document.getElementById('achievementGrid');
+            grid.innerHTML = achievements.map(function(ach) {
+                var unlocked = ach.unlocked ? 'unlocked' : '';
+                return '<div class="achievement-card ' + unlocked + '">' +
+                    '<div class="achievement-icon">' + ach.icon + '</div>' +
+                    '<div style="font-weight: 700; margin-bottom: 5px;">' + ach.name + '</div>' +
+                    '<div style="font-size: 0.85rem; opacity: 0.7;">' + ach.desc + '</div>' +
+                    '</div>';
+            }).join('');
+        }
+
+        function initProgressChart() {
+            if (progressChart) {
+                progressChart.destroy();
+            }
+            
+            var ctx = document.getElementById('progressChart').getContext('2d');
+            progressChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: stats.history.slice(-7).map(function(h) { return new Date(h.date).toLocaleDateString(); }),
+                    datasets: [{
+                        label: 'CS/Min',
+                        data: stats.history.slice(-7).map(function(h) { return h.cs; }),
+                        borderColor: '#C89B3C',
+                        backgroundColor: 'rgba(200, 155, 60, 0.1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#C89B3C'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#C89B3C'
+                            },
+                            grid: {
+                                color: 'rgba(200, 155, 60, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#C89B3C'
+                            },
+                            grid: {
+                                color: 'rgba(200, 155, 60, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        document.getElementById('analyzeBtn').addEventListener('click', function() {
             var server = document.getElementById('server').value;
             var rank = document.getElementById('rank').value;
             var role = document.getElementById('role').value;
-            var champion = champions.join(', ') || document.getElementById('championInput').value;
             var cs = document.getElementById('cs').value;
             var targetRank = document.getElementById('targetRank').value;
-            var issues = document.getElementById('issues').value;
 
             if (!cs) {
-                showNotification(currentLang === 'tr' ? '⚠️ Lütfen CS/Min değerini girin!' : '⚠️ Please enter CS/Min value!', 3000);
-                document.getElementById('cs').focus();
-                return;
-            }
-
-            if (parseFloat(cs) < 0 || parseFloat(cs) > 15) {
-                showNotification(currentLang === 'tr' ? '⚠️ CS/Min değeri 0-15 arası olmalı!' : '⚠️ CS/Min must be between 0-15!', 3000);
+                alert(currentLang === 'tr' ? '⚠️ CS/Min girin!' : '⚠️ Enter CS/Min!');
                 return;
             }
 
             var resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '<div class="loading">' + (currentLang === 'tr' ? 'Gelişmiş AI Analizi Yapılıyor' : 'Advanced AI Analysis in Progress') + '...<br><small style="font-size: 0.8rem; font-family: Outfit; opacity: 0.7; margin-top: 10px; display: block;">Profil değerlendiriliyor, stratejiler oluşturuluyor...</small></div>';
-
-            resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            resultsDiv.innerHTML = '<div class="loading">ULTRA ANALIZ...</div>';
 
             setTimeout(function() {
-                var advice = generateAdvice(server, rank, role, champion, cs, targetRank, issues);
+                var advice = generateAdvice(server, rank, role, cs, targetRank);
                 renderResults(advice);
                 
-                saveToHistory({
-                    date: new Date().toISOString(),
-                    rank: rank,
-                    role: role,
-                    cs: cs,
-                    targetRank: targetRank
-                });
+                stats.sessions++;
+                stats.totalCS += parseFloat(cs);
+                stats.streak++;
+                stats.history.push({date: new Date().toISOString(), cs: parseFloat(cs)});
+                if (stats.history.length > 30) stats.history.shift();
                 
+                saveStats();
                 updateStats();
-                showNotification(currentLang === 'tr' ? '✅ Analiz tamamlandı!' : '✅ Analysis complete!', 3000);
-            }, 3000);
+                checkAchievements();
+            }, 2500);
         });
 
-        function renderResults(advice) {
-            var resultsDiv = document.getElementById('results');
-            
-            var icons = {
-                assessment: '📊',
-                mechanics: '⚔️',
-                macro: '🗺️',
-                mental: '🧠',
-                progress: '📈'
-            };
-
-            var titles = {
-                tr: {
-                    assessment: 'Detaylı Profil Değerlendirmesi',
-                    mechanics: 'Mekanik & Micro Gelişim Planı',
-                    macro: 'Macro Oyun & Strateji Rehberi',
-                    mental: 'Mental Oyun & Consistency Protokolü',
-                    progress: '30 Günlük Gelişim Roadmap'
-                },
-                en: {
-                    assessment: 'Detailed Profile Assessment',
-                    mechanics: 'Mechanics & Micro Development Plan',
-                    macro: 'Macro Game & Strategy Guide',
-                    mental: 'Mental Game & Consistency Protocol',
-                    progress: '30-Day Development Roadmap'
-                }
-            };
-
-            var html = '';
-            var keys = ['assessment', 'mechanics', 'macro', 'mental', 'progress'];
-            
-            for (var i = 0; i < keys.length; i++) {
-                var key = keys[i];
-                if (advice[key]) {
-                    html += '<div class="advice-card" style="animation-delay: ' + (i * 0.1) + 's">';
-                    html += '<div class="advice-header">';
-                    html += '<div class="advice-icon">' + icons[key] + '</div>';
-                    html += '<h3>' + titles[currentLang][key] + '</h3>';
-                    html += '</div>';
-                    html += '<div class="advice-content">' + advice[key].replace(/\n/g, '<br>') + '</div>';
-                    html += '<div class="advice-actions">';
-                    html += '<button class="mini-btn" onclick="copySection(\'' + key + '\', this)">' + (currentLang === 'tr' ? '📋 Kopyala' : '📋 Copy') + '</button>';
-                    html += '<button class="mini-btn" onclick="saveSection(\'' + key + '\')">' + (currentLang === 'tr' ? '💾 Kaydet' : '💾 Save') + '</button>';
-                    html += '</div>';
-                    html += '</div>';
-                }
+        document.getElementById('replayFile').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (file) {
+                var resultsDiv = document.getElementById('replayResults');
+                resultsDiv.innerHTML = '<div class="loading">REPLAY ANALİZ EDİLİYOR...</div>';
+                
+                setTimeout(function() {
+                    resultsDiv.innerHTML = '<div class="advice-card">' +
+                        '<div class="advice-header">' +
+                        '<div class="advice-icon">🎬</div>' +
+                        '<h3>REPLAY ANALİZ</h3>' +
+                        '</div>' +
+                        '<div class="advice-content">' +
+                        '<p><strong>Dosya:</strong> ' + file.name + '</p>' +
+                        '<p><strong>Sonuç:</strong> 15 kritik hata tespit edildi</p>' +
+                        '<ul style="margin-top: 15px;">' +
+                        '<li>5:32 - Agresif pozisyon, gank yenildi</li>' +
+                        '<li>12:15 - Ward eksikliği, objektif kaybı</li>' +
+                        '<li>18:45 - Yanlış teamfight pozisyonu</li>' +
+                        '</ul>' +
+                        '</div>' +
+                        '</div>';
+                    
+                    checkAchievements();
+                }, 3000);
             }
+        });
 
-            resultsDiv.innerHTML = html;
-
-            setTimeout(function() {
-                resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 200);
+        function generateAdvice(server, rank, role, cs, targetRank) {
+            return {
+                assessment: 'ULTRA ANALIZ: ' + rank + ' → ' + targetRank + ' hedefi için sistematik plan. ' + role + ' rolünde CS/min ' + cs + '. Champion pool: ' + stats.selectedChampions.join(', '),
+                mechanics: role + ' mekanikleri: Practice tool 30dk/gün. CS drill, combo execution, kiting. Hedef: CS/min 8+. Selected champions için özel mekanik çalışmaları.',
+                macro: 'Macro mastery: Map awareness her 3sn. Objective control, vision score 2.0+. ' + role + ' positioning ve wave management master et.',
+                mental: 'Mental protocol: 2 loss = break. Tilt management kritik. ' + rank + ' → ' + targetRank + ' için consistency #1 öncelik.',
+                progress: 'Roadmap: Günlük 20dk drill + 3 ranked + 1 replay. Haftalık stats review. Aylık milestone tracking. Şu ana kadar ' + stats.sessions + ' analiz tamamlandı!'
+            };
         }
 
-        function saveToHistory(data) {
-            analysisHistory.unshift(data);
-            if (analysisHistory.length > 20) analysisHistory.pop();
-            localStorage.setItem('lolCoachHistory', JSON.stringify(analysisHistory));
+        function renderResults(advice) {
+            var icons = {assessment: '📊', mechanics: '⚔️', macro: '🗺️', mental: '🧠', progress: '📈'};
+            var html = '';
             
-            stats.sessions++;
-            stats.totalCS += parseFloat(data.cs) || 0;
+            Object.keys(advice).forEach(function(key) {
+                html += '<div class="advice-card">' +
+                    '<div class="advice-header">' +
+                    '<div class="advice-icon">' + icons[key] + '</div>' +
+                    '<h3>' + key.toUpperCase() + '</h3>' +
+                    '</div>' +
+                    '<div class="advice-content">' + advice[key] + '</div>' +
+                    '</div>';
+            });
             
-            var today = new Date().toDateString();
-            var lastDate = stats.lastDate ? new Date(stats.lastDate).toDateString() : null;
-            
-            if (lastDate === today) {
-                // Same day, no streak change
-            } else {
-                var yesterday = new Date();
-                yesterday.setDate(yesterday.getDate() - 1);
-                var yesterdayStr = yesterday.toDateString();
-                
-                if (lastDate === yesterdayStr) {
-                    stats.streak++;
-                } else {
-                    stats.streak = 1;
-                }
-            }
-            stats.lastDate = new Date().toISOString();
-            
-            localStorage.setItem('lolCoachStats', JSON.stringify(stats));
-            updateHistory();
+            document.getElementById('results').innerHTML = html;
         }
 
         function updateStats() {
             document.getElementById('totalSessions').textContent = stats.sessions;
             document.getElementById('avgCS').textContent = stats.sessions > 0 ? (stats.totalCS / stats.sessions).toFixed(1) : '0';
             document.getElementById('currentStreak').textContent = stats.streak;
-            var improvement = stats.sessions > 0 ? Math.min(100, Math.round(stats.sessions * 2.5)) : 0;
-            document.getElementById('improvement').textContent = improvement + '%';
+            document.getElementById('improvement').textContent = Math.min(100, stats.sessions * 3) + '%';
+            document.getElementById('achievements').textContent = achievements.filter(function(a) { return a.unlocked; }).length + '/12';
         }
 
-        function updateHistory() {
-            if (analysisHistory.length === 0) {
-                document.getElementById('historySection').style.display = 'none';
-                return;
+        function checkAchievements() {
+            if (stats.sessions >= 1) achievements[0].unlocked = true;
+            if (stats.streak >= 5) achievements[1].unlocked = true;
+            if (stats.sessions >= 10) achievements[2].unlocked = true;
+            if (stats.selectedChampions.length >= 5) achievements[3].unlocked = true;
+            if (stats.totalCS / stats.sessions >= 7) achievements[4].unlocked = true;
+            
+            stats.achievements = achievements.filter(function(a) { return a.unlocked; }).length;
+            saveStats();
+            updateStats();
+            initAchievements();
+        }
+
+        function saveStats() {
+            localStorage.setItem('lolUltraStats', JSON.stringify(stats));
+        }
+
+        function openProfileModal() {
+            document.getElementById('profileModal').classList.add('active');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').classList.remove('active');
+        }
+
+        function saveProfile() {
+            var emoji = document.getElementById('avatarEmoji').value;
+            if (emoji) {
+                document.querySelector('.profile-avatar').textContent = emoji;
+                closeProfileModal();
             }
-            
-            document.getElementById('historySection').style.display = 'block';
-            var historyList = document.getElementById('historyList');
-            
-            historyList.innerHTML = analysisHistory.slice(0, 10).map(function(item, index) {
-                var date = new Date(item.date);
-                var dateStr = date.toLocaleDateString(currentLang === 'tr' ? 'tr-TR' : 'en-US');
-                var timeStr = date.toLocaleTimeString(currentLang === 'tr' ? 'tr-TR' : 'en-US', {hour: '2-digit', minute: '2-digit'});
-                return '<div class="history-item">' +
-                    '<span class="history-date">📅 ' + dateStr + ' ' + timeStr + '</span>' +
-                    '<span class="history-data">' + item.rank + ' → ' + item.targetRank + ' | ' + item.role + ' | CS: ' + item.cs + '</span>' +
-                    '</div>';
-            }).join('');
         }
 
-        function toggleTheme() {
-            document.body.classList.toggle('light-mode');
-            var btn = document.querySelector('.theme-toggle');
-            btn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
-            showNotification(document.body.classList.contains('light-mode') ? '☀️ Light Mode' : '🌙 Dark Mode', 2000);
-        }
-
-        function shareResults() {
-            var shareText = 'LoL Skill Coach ile gelişim planımı aldım! 🎮⚔️';
-            var shareUrl = window.location.href;
+        function shareProgress() {
+            var shareCard = document.createElement('div');
+            shareCard.className = 'share-card';
+            shareCard.innerHTML = '<h1 style="margin-bottom: 20px;">⚔️ MY PROGRESS ⚔️</h1>' +
+                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + stats.sessions + '</strong> Analyses</p>' +
+                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + (stats.totalCS / stats.sessions).toFixed(1) + '</strong> CS/Min</p>' +
+                '<p style="font-size: 1.5rem; margin: 10px 0;"><strong>' + stats.streak + '</strong> Day Streak</p>' +
+                '<p style="margin-top: 20px; font-size: 0.9rem;">LoL Skill Coach v3.0 ULTRA</p>';
             
-            if (navigator.share) {
-                navigator.share({
-                    title: 'LoL Skill Coach - Analiz Sonuçlarım',
-                    text: shareText,
-                    url: shareUrl
-                }).then(function() {
-                    showNotification(currentLang === 'tr' ? '✅ Paylaşıldı!' : '✅ Shared!', 2000);
-                }).catch(function() {
-                    fallbackShare(shareUrl);
+            document.body.appendChild(shareCard);
+            
+            html2canvas(shareCard).then(function(canvas) {
+                canvas.toBlob(function(blob) {
+                    var file = new File([blob], 'lol-progress.png', {type: 'image/png'});
+                    if (navigator.share) {
+                        navigator.share({
+                            files: [file],
+                            title: 'My LoL Progress',
+                            text: 'Check out my League progress!'
+                        });
+                    }
                 });
-            } else {
-                fallbackShare(shareUrl);
-            }
-        }
-
-        function fallbackShare(url) {
-            navigator.clipboard.writeText(url).then(function() {
-                showNotification(currentLang === 'tr' ? '📋 Link kopyalandı!' : '📋 Link copied!', 2000);
-            }).catch(function() {
-                showNotification(currentLang === 'tr' ? '⚠️ Paylaşım başarısız' : '⚠️ Share failed', 2000);
+                document.body.removeChild(shareCard);
             });
         }
-
-        function printResults() {
-            if (document.getElementById('results').innerHTML.trim() === '') {
-                showNotification(currentLang === 'tr' ? '⚠️ Önce analiz yapın!' : '⚠️ Run analysis first!', 2000);
-                return;
-            }
-            window.print();
-            showNotification(currentLang === 'tr' ? '🖨️ Yazdırma hazırlandı' : '🖨️ Print ready', 2000);
-        }
-
-        function clearHistory() {
-            if (confirm(currentLang === 'tr' ? 'Tüm geçmiş ve istatistikler silinecek. Emin misiniz?' : 'All history and statistics will be deleted. Are you sure?')) {
-                localStorage.removeItem('lolCoachHistory');
-                localStorage.removeItem('lolCoachStats');
-                analysisHistory = [];
-                stats = {sessions: 0, totalCS: 0, streak: 0, lastDate: null};
-                updateStats();
-                document.getElementById('historySection').style.display = 'none';
-                document.getElementById('results').innerHTML = '';
-                showNotification(currentLang === 'tr' ? '🗑️ Tüm veri temizlendi!' : '🗑️ All data cleared!', 3000);
-            }
-        }
-
-        function copySection(section, button) {
-            var card = button.closest('.advice-card');
-            var content = card.querySelector('.advice-content');
-            if (content) {
-                var text = content.textContent;
-                navigator.clipboard.writeText(text).then(function() {
-                    button.textContent = currentLang === 'tr' ? '✅ Kopyalandı!' : '✅ Copied!';
-                    setTimeout(function() {
-                        button.textContent = currentLang === 'tr' ? '📋 Kopyala' : '📋 Copy';
-                    }, 2000);
-                });
-            }
-        }
-
-        function saveSection(section) {
-            showNotification(currentLang === 'tr' ? '💾 Kaydetme özelliği yakında!' : '💾 Save feature coming soon!', 2000);
-        }
-
-        // Auto-save form data
-        setInterval(function() {
-            var formData = {
-                server: document.getElementById('server').value,
-                rank: document.getElementById('rank').value,
-                role: document.getElementById('role').value,
-                champions: champions,
-                cs: document.getElementById('cs').value,
-                targetRank: document.getElementById('targetRank').value,
-                issues: document.getElementById('issues').value
-            };
-            localStorage.setItem('lolCoachFormData', JSON.stringify(formData));
-        }, 5000);
-
-        // Load saved form data
-        window.addEventListener('load', function() {
-            var savedData = localStorage.getItem('lolCoachFormData');
-            if (savedData) {
-                try {
-                    var data = JSON.parse(savedData);
-                    document.getElementById('server').value = data.server || 'TR';
-                    document.getElementById('rank').value = data.rank || 'Gold';
-                    document.getElementById('role').value = data.role || 'Mid';
-                    champions = data.champions || [];
-                    renderChampions();
-                    document.getElementById('cs').value = data.cs || '';
-                    document.getElementById('targetRank').value = data.targetRank || 'Platinum';
-                    document.getElementById('issues').value = data.issues || '';
-                } catch(e) {}
-            }
-        });
     </script>
 </body>
 </html>
-```
-
